@@ -6,3 +6,6 @@ It means to imply some basic graphic alogrithm like: 3 dimension distance and 3 
 and so on.
 
 welcome to join me! please contact shlkl99@163.com
+
+DamonsGraphic is written using C++ and visual studio 2015.
+At begining, it just maintained in windows platform!
