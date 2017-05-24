@@ -89,7 +89,7 @@ int main() {
 
 	DPoint pt13(0.0f,0.0f,0.0f);
 	DPoint pt14(20.0f, 0.0f, 0.0f);
-	DPoint pt15(20.1f, 0.0f, 0.0f);
+	DPoint pt15(10.00001f, 0.0000001f, 0.0000001f);
 	DLine<float > dl3(pt13, pt14);
 	bool isOn = dl3.Has_on(pt15);
 

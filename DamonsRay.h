@@ -69,6 +69,12 @@ namespace DGraphic {
 		/// @returns a bool value that is point on ray
 		inline bool Has_on(const DPoint< T > &p) const {
 
+			//first check if they are colinear
+			DPoint< T > s = (p - spoint_).CrossProduct(direction_);
+			if (std::fabs(s[0]) > DEplision || std::fabs(s[1]) > DEplision || std::fabs(s[2]) > DEplision) {
+				return false;
+			}
+			//secont check if the point on the ray
 			T t = (p - spoint_).DotProduct(direction_);
 
 			return ( t > static_cast<T>(-0.000001));
