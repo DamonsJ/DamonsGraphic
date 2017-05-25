@@ -86,7 +86,7 @@ namespace DGraphic {
 		///@param the ray need to compare with
 		///@return true if they are equal otherwise false
 
-		inline bool operator ==(const DRay &r) {
+		inline bool operator ==(const DRay<T> &r) {
 
 			return (spoint_ == r.spoint_) && (direction_ == r.direction_);
 		}
@@ -96,7 +96,7 @@ namespace DGraphic {
 		///
 		///@param the ray need to compare with
 		///@return true if they are not equal otherwise false
-		inline bool operator !=(const DRay &r) {
+		inline bool operator !=(const DRay<T> &r) {
 			return !(*this == r);
 		}
 

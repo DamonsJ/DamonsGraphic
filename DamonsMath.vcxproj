@@ -149,6 +149,7 @@
     <ClCompile Include="test_main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DamonsBox.h" />
     <ClInclude Include="DamonsDirection.h" />
     <ClInclude Include="DamonsLine.h" />
     <ClInclude Include="DamonsMatrix.h" />
@@ -156,6 +157,7 @@
     <ClInclude Include="DamonsPoint.h" />
     <ClInclude Include="DamonsQuaternion.h" />
     <ClInclude Include="DamonsRay.h" />
+    <ClInclude Include="DamonsTriangle.h" />
     <ClInclude Include="DamonsVector.h" />
     <ClInclude Include="utilities.h" />
   </ItemGroup>

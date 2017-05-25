@@ -47,5 +47,11 @@
     <ClInclude Include="DamonsDirection.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="DamonsBox.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DamonsTriangle.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

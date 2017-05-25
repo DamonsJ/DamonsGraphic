@@ -5,6 +5,8 @@
 #include "DamonsPoint.h"
 #include "DamonsLine.h"
 #include "DamonsDirection.h"
+#include "DamonsBox.h"
+#include "DamonsTriangle.h"
 
 using namespace DMath;
 using namespace DGraphic;
@@ -89,10 +91,21 @@ int main() {
 
 	DPoint pt13(0.0f,0.0f,0.0f);
 	DPoint pt14(20.0f, 0.0f, 0.0f);
-	DPoint pt15(10.00001f, 0.0000001f, 0.0000001f);
+	DPoint pt15(10.00001f, 10.0000001f, 0.0000001f);
 	DLine<float > dl3(pt13, pt14);
 	bool isOn = dl3.Has_on(pt15);
 
+	DBox<float > box1(pt13,pt14);
+	DBox<float > box2(box1);
+	bool isit = box1.IsIntersect(box2);
+	bool isiw = box1==(box2);
+
+	DPoint pt16(10.00001f, 0.0000001f, 0.0000001f);
+	DTriangle<float > tri(pt13, pt14,pt15);
+	bool iso = tri.Has_on(pt16);
+	float area = tri.Area();
+	DBox<float > box = tri.Box();
+	DDirection<float > dri = tri.Normal();
 	system("pause");
 	return 0;
 }

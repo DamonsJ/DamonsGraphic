@@ -54,6 +54,7 @@ namespace DGraphic {
 		/// @param s3 Scalar value for the third element of the direction.
 		inline DDirection(const T& s1, const T& s2, const T& s3) {
 			dir_ = DPoint<T>(s1,s2,s3);
+			dir_.Normalize();
 		}
 
 		/// @brief Create a direction from three diffent type values.
@@ -66,6 +67,7 @@ namespace DGraphic {
 		template<typename T1, typename T2, typename T3>
 		inline DDirection(const T1& s1, const T2& s2, const T3& s3){
 			dir_ = DPoint<T>(s1, s2, s3);
+			dir_.Normalize();
 		}
 
 		~DDirection() {
