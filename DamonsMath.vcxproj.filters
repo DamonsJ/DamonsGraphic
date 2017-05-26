@@ -13,6 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="头文件\Math">
+      <UniqueIdentifier>{b2d7e29b-483f-4641-80d5-7cdcd40c01ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Graphics">
+      <UniqueIdentifier>{34f6c467-f676-49f8-99d7-79c744e5d82f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Intersection">
+      <UniqueIdentifier>{aa9eb936-a3a1-4009-a283-3193801d3bbb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Distance">
+      <UniqueIdentifier>{7f27747e-c912-49d9-a7aa-f469d51fd8cf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test_main.cpp">
@@ -21,40 +33,40 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DamonsVector.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="utilities.h">
-      <Filter>头文件</Filter>
+      <Filter>头文件\Math</Filter>
     </ClInclude>
     <ClInclude Include="DamonsMatrix.h">
-      <Filter>头文件</Filter>
+      <Filter>头文件\Math</Filter>
     </ClInclude>
     <ClInclude Include="DamonsQuaternion.h">
-      <Filter>头文件</Filter>
+      <Filter>头文件\Math</Filter>
     </ClInclude>
-    <ClInclude Include="DamonsPoint.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="DamonsObject.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="DamonsLine.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="DamonsRay.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="DamonsDirection.h">
-      <Filter>头文件</Filter>
+    <ClInclude Include="utilities.h">
+      <Filter>头文件\Math</Filter>
     </ClInclude>
     <ClInclude Include="DamonsBox.h">
-      <Filter>头文件</Filter>
+      <Filter>头文件\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="DamonsTriangle.h">
-      <Filter>头文件</Filter>
+    <ClInclude Include="DamonsDirection.h">
+      <Filter>头文件\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="DamonsLine.h">
+      <Filter>头文件\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="DamonsObject.h">
+      <Filter>头文件\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="DamonsPlane.h">
-      <Filter>头文件</Filter>
+      <Filter>头文件\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="DamonsPoint.h">
+      <Filter>头文件\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="DamonsRay.h">
+      <Filter>头文件\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="DamonsTriangle.h">
+      <Filter>头文件\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
