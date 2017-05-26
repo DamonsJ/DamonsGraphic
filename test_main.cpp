@@ -7,6 +7,7 @@
 #include "DamonsDirection.h"
 #include "DamonsBox.h"
 #include "DamonsTriangle.h"
+#include "DamonsPlane.h"
 
 using namespace DMath;
 using namespace DGraphic;
@@ -100,12 +101,20 @@ int main() {
 	bool isit = box1.IsIntersect(box2);
 	bool isiw = box1==(box2);
 
-	DPoint pt16(10.00001f, 0.0000001f, 0.0000001f);
+	DPoint pt16(10.00001f, 0.0000001f, 0.0000000f);
 	DTriangle<float > tri(pt13, pt14,pt15);
 	bool iso = tri.Has_on(pt16);
 	float area = tri.Area();
 	DBox<float > box = tri.Box();
 	DDirection<float > dri = tri.Normal();
+
+	DDirection<float > dri2(0,0,1);
+	DPlane<float > plane1(pt13, dri2);
+	bool iss1 = plane1 == plane1;
+	DPoint pt17 = plane1.Projection(pt15);
+	DPlane<float > plane2 = plane1.Opposite();
+	bool ison = plane1.Has_on(pt16);
+
 	system("pause");
 	return 0;
 }

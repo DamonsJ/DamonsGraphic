@@ -4,6 +4,7 @@
 #include "DamonsObject.h"
 #include "DamonsPoint.h"
 #include "DamonsLine.h"
+#include "DamonsRay.h"
 
 namespace DGraphic {
 
@@ -30,6 +31,24 @@ namespace DGraphic {
 			DVector<T, 3> d = l.to_vector();
 			dir_ = DPoint<T>(d.Normalized());
 		}
+
+		/// @brief create a direction with a Ray
+
+		/// @param l DRay 
+		DDirection(DRay<T> &l) {
+			DDirection<T> d = l.Direction();
+			dir_.x() = d.x();
+			dir_.y() = d.y();
+			dir_.z() = d.z();
+		}
+
+		/// @brief create a direction with another direction
+
+		/// @param l direction 
+		DDirection(DDirection<T> &l) {
+			dir_ = l.dir_;
+		}
+
 		/// @brief create a direction from two point
 
 		/// @param p1 start point of direction

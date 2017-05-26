@@ -157,7 +157,7 @@ namespace DGraphic {
 		inline bool Has_on(const DPoint< T > &p) const {
 			//first check if they are colinear
 			DPoint< T > s = (p - lpoints_[0]).CrossProduct(lpoints_[1] - lpoints_[0]);
-			if (std::fabs(s[0]) > DEplision || std::fabs(s[1]) > DEplision || std::fabs(s[2]) > DEplision) {
+			if (std::abs(s[0]) > DEplision || std::abs(s[1]) > DEplision || std::abs(s[2]) > DEplision) {
 				return false;
 			}
 			//secont check if the point is between two points

@@ -146,7 +146,7 @@ namespace DGraphic {
 			DPoint<T> v2 = triangle_points_[2] - triangle_points_[0];
 
 			DPoint< T > s = v1.CrossProduct(v2);
-			if (std::fabs(s[0]) > DEplision || std::fabs(s[1]) > DEplision || std::fabs(s[2]) > DEplision) {
+			if (std::abs(s[0]) > DEplision || std::abs(s[1]) > DEplision || std::abs(s[2]) > DEplision) {
 				return false;
 			}
 
