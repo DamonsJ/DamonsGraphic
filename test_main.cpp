@@ -103,7 +103,7 @@ int main() {
 	DBox<float > box = tri.Box();
 	DDirection<float > dri = tri.Normal();
 
-	DDirection<float > dri2(0, 0, 1);
+	DDirection<float > dri2(1, 0, 0);
 	DPlane<float > plane1(pt13, dri2);
 	bool iss1 = plane1 == plane1;
 	DPoint pt17 = plane1.Projection(pt15);

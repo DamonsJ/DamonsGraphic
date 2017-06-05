@@ -35,6 +35,10 @@ namespace DGraphic {
 
 		template <class T>
 		static inline T PointToLine(const DPoint<T> &p, const DLine<T> &l) {
+			/// assume the line is Ps + (Pe-Ps)*t,where t >= 0 and t <= 1
+			/// if the nearest point of p lie between the start and end point of line
+			/// then we can calculate t,and the nearest point ,so we can calculate distance
+			/// otherwise the distance is distance between p and the two end points of line
 			DPoint<T> vec = p - l.GetStartPoint();
 			DPoint<T> v = DPoint<T>(l.to_vector());
 
@@ -60,7 +64,7 @@ namespace DGraphic {
 
 		template <class T>
 		static inline T PointToRay(const DPoint<T> &p, const DRay<T> &r) {
-
+			///same method with PointToLine but different t value
 			DPoint<T> vec = p - r.GetSourcePoint();
 			const DDirection<T> dir = r.Direction();
 			DPoint<T> v = DPoint<T>(dir.x(), dir.y(), dir.z());
@@ -78,13 +82,20 @@ namespace DGraphic {
 		/// @brief Calculate the distance between point and plane
 		///
 		/// @param p DPoint of type T
-		/// @param l DRay  of type T.
-		/// @return The distance between point and ray
+		/// @param pl DPlane  of type T.
+		/// @return The distance between point and plane
 
 		template <class T>
 		static inline T PointToPlane(const DPoint<T> &p, const DPlane<T> &pl) {
 
+			DDirection<T> dir = pl.GetDirection();
+			DPoint<T> norm = DPoint<T>(dir.x(), dir.y(), dir.z());
+			DPoint<T> orgpt = pl.GetOrigin();
 
+			T s1 = norm.DotProduct(p);
+			T s2 = norm.DotProduct(orgpt);
+
+			return (s1 - s2);
 		}
 
 	protected:

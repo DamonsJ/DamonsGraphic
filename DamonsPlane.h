@@ -135,7 +135,7 @@ namespace DGraphic {
 		inline DPoint<T> Projection(const DPoint<T> &p) {
 
 			T s1 = normal_.DotProduct(p);
-			T s2 = origin_.DotProduct(p);
+			T s2 = normal_.DotProduct(origin_);
 			T s =  s1 - s2;
 			return (p - s*normal_);
 		}
@@ -156,6 +156,12 @@ namespace DGraphic {
 			return DDirection<T>(normal_[0], normal_[1], normal_[2]);
 		}
 
+		/// @brief get the origin point of this plane .
+		///
+		/// @returns the origin point of plane .
+		inline DPoint<T> GetOrigin() const {
+			return origin_;
+		}
 		/// @brief calculate is the given point on the plane
 		///
 		/// @param the point need to test

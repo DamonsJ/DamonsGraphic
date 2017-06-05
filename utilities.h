@@ -1,7 +1,9 @@
 
-
 #ifndef _UTILITILES_H
 #define _UTILITILES_H
+
+#include <stdint.h>
+#include <assert.h>
 
 /// @cond DamonsMath_INTERNAL
 #define DAMONSMATH_VECTOR_OPERATION(OP) DAMONSMATH_UNROLLED_LOOP(i, d, OP)
