@@ -68,5 +68,8 @@
     <ClInclude Include="DamonsTriangle.h">
       <Filter>头文件\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="DamonsDistance.h">
+      <Filter>头文件\Distance</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

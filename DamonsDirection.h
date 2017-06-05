@@ -14,8 +14,8 @@ namespace DGraphic {
 	/// DDirection stores <b>3</b> elements of data of type T
 	/// @tparam T type of data.
 
-	template<class T = double> 
-	class DDirection:public DObject
+	template<class T = double>
+	class DDirection :public DObject
 	{
 	public:
 		/// @brief Create an uninitialized DDirection.
@@ -45,7 +45,7 @@ namespace DGraphic {
 		/// @brief create a direction with another direction
 
 		/// @param l direction 
-		DDirection(DDirection<T> &l) {
+		DDirection(const DDirection<T> &l) {
 			dir_ = l.dir_;
 		}
 
@@ -61,7 +61,7 @@ namespace DGraphic {
 		/// @brief create a direction from a vector
 
 		/// @param v  vector need to create direction
-		DDirection(DVector<T,3> &v) {
+		DDirection(DVector<T, 3> &v) {
 			DVector<T, 3> d = v.Normalized();
 			dir_ = DPoint<T>(d);
 		}
@@ -72,7 +72,7 @@ namespace DGraphic {
 		/// @param s2 Scalar value for the second element of the direction.
 		/// @param s3 Scalar value for the third element of the direction.
 		inline DDirection(const T& s1, const T& s2, const T& s3) {
-			dir_ = DPoint<T>(s1,s2,s3);
+			dir_ = DPoint<T>(s1, s2, s3);
 			dir_.Normalize();
 		}
 
@@ -84,7 +84,7 @@ namespace DGraphic {
 		/// @param s2 of Type T2 Scalar value for the second element of the point.
 		/// @param s3 of Type T3 Scalar value for the third element of the point.
 		template<typename T1, typename T2, typename T3>
-		inline DDirection(const T1& s1, const T2& s2, const T3& s3){
+		inline DDirection(const T1& s1, const T2& s2, const T3& s3) {
 			dir_ = DPoint<T>(s1, s2, s3);
 			dir_.Normalize();
 		}
@@ -159,7 +159,7 @@ namespace DGraphic {
 		///
 		/// @param i Index of the element to access.
 		/// @return  the accessed data 
-		inline const T& operator[](const int i) const{
+		inline const T& operator[](const int i) const {
 			assert(i < 3);
 			return dir_[i];
 		}
@@ -167,7 +167,7 @@ namespace DGraphic {
 		/// @brief Negate all elements of the Direction.
 		///
 		/// @return A new Direction containing the result.
-		inline DDirection<T> operator-() const{
+		inline DDirection<T> operator-() const {
 			return DDirection<T>(-dir_[0], -dir_[1], -dir_[2]);
 		}
 

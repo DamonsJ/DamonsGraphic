@@ -151,6 +151,7 @@
   <ItemGroup>
     <ClInclude Include="DamonsBox.h" />
     <ClInclude Include="DamonsDirection.h" />
+    <ClInclude Include="DamonsDistance.h" />
     <ClInclude Include="DamonsLine.h" />
     <ClInclude Include="DamonsMatrix.h" />
     <ClInclude Include="DamonsObject.h" />
