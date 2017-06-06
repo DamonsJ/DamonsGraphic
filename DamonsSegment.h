@@ -1,5 +1,5 @@
-#ifndef _DAMONS_LINE_H_
-#define _DAMONS_LINE_H_
+#ifndef _DAMONS_SEGMENT_H_
+#define _DAMONS_SEGMENT_H_
 
 #include "DamonsObject.h"
 #include "DamonsPoint.h"

@@ -71,5 +71,8 @@
     <ClInclude Include="DamonsSegment.h">
       <Filter>头文件\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="DamonsLine.h">
+      <Filter>头文件\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

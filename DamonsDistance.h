@@ -7,6 +7,7 @@
 #include "DamonsBox.h"
 #include "DamonsTriangle.h"
 #include "DamonsPlane.h"
+#include "DamonsLine.h"
 
 namespace DGraphic {
 
@@ -28,6 +29,22 @@ namespace DGraphic {
 
 	public:
 		/// @brief Calculate the distance between point and line
+		///
+		/// @param p DPoint of type T
+		/// @param l DLine  of type T.
+		/// @param The distance between point  and line
+
+		template <class T>
+		static inline T PointToLine(const DPoint<T> &p, const DLine<T> &l) {
+			/// assume the line is Ps + dir*t
+			/// we can calculate t,and the nearest point ,so we can calculate distance
+			DPoint<T>  pjt = l.Projection(p);
+
+			return pjt.Distance(p);
+
+		}
+
+		/// @brief Calculate the distance between point and segment
 		///
 		/// @param p DPoint of type T
 		/// @param l DSegment  of type T.
