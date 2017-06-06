@@ -4,7 +4,7 @@
 
 #include <stdint.h>
 #include <assert.h>
-
+#include <algorithm>
 /// @cond DamonsMath_INTERNAL
 #define DAMONSMATH_VECTOR_OPERATION(OP) DAMONSMATH_UNROLLED_LOOP(i, d, OP)
 /// @endcond

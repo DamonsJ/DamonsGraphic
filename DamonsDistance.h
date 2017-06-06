@@ -98,6 +98,43 @@ namespace DGraphic {
 			return (s1 - s2);
 		}
 
+		/// @brief Calculate the distance between point and triangle
+		///
+		/// @param p DPoint of type T
+		/// @param tri DTriangle  of type T.
+		/// @return The distance between point and triangle
+
+		template <class T>
+		static inline T PointToTriangle(const DPoint<T> &p, const DTriangle<T> &tri) {
+
+			///1. calculate the nearest point lie on triangle
+			DDirection<T> dir = tri.Normal();
+			DPoint<T> norm = DPoint<T>(dir.x(), dir.y(), dir.z());
+			DPoint<T> orgpt = tri[0];
+
+			T s1 = norm.DotProduct(p);
+			T s2 = norm.DotProduct(orgpt);
+			DPoint<T> npt = (p - (s1-s2)*norm);
+			
+			///2. calculate whether the nearest point is lie in triangle
+			/// if lie in triangle,the distance is p and the nearest point
+			/// otherwise calculate the nearest distance between p and three lines of triangle
+			if (tri.Has_on(npt)) {
+				return p.Distance(npt);
+			}
+			else {
+				DLine<T> l1 = DLine<T>(tri[0], tri[1]);
+				DLine<T> l2 = DLine<T>(tri[1], tri[2]);
+				DLine<T> l3 = DLine<T>(tri[2], tri[0]);
+
+				T d1 = PointToLine(p, l1);
+				T d2 = PointToLine(p, l2);
+				T d3 = PointToLine(p, l3);
+
+				return std::min(d1, std::min(d2,d3));
+			}
+		}
+
 	protected:
 	};
 };

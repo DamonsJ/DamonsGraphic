@@ -96,7 +96,7 @@ int main() {
 	bool isit = box1.IsIntersect(box2);
 	bool isiw = box1 == (box2);
 
-	DPoint pt16(10.00001f, 0.0000001f, 0.0000000f);
+	DPoint pt16(30.00001f, 0.0000001f, 0.0000000f);
 	DTriangle<float > tri(pt13, pt14, pt15);
 	bool iso = tri.Has_on(pt16);
 	float area = tri.Area();
@@ -117,6 +117,7 @@ int main() {
 
 	DRay<float > dl5(pt18, pt19);
 	float dt = DDistance::PointToRay(pt16, dl5);
+	float dt1 = DDistance::PointToTriangle(pt16,tri);
 
 	system("pause");
 	return 0;

@@ -30,7 +30,7 @@ namespace DGraphic {
 		/// @param p1 first point of line
 		/// @param p2 second point of line
 
-		DLine(DPoint< T > &p1, DPoint< T > &p2) {
+		DLine(const DPoint< T > &p1, const DPoint< T > &p2) {
 			lpoints_[0] = p1;
 			lpoints_[1] = p2;
 		}

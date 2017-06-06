@@ -164,6 +164,15 @@ namespace DGraphic {
 							 data_[0] * v[1] - data_[1] * v[0]);
 		}
 
+		/// @brief Calculate the distance of two points.
+		///
+		/// @param v another point.
+		/// @return The distance of this and v.
+		inline  T Distance(const DPoint<T>& v) const{
+
+			return (*this - v).Length();
+		}
+
 		/// @brief Linearly interpolate two points.
 		///
 		/// @param v1 First point.

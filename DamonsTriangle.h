@@ -63,14 +63,14 @@ namespace DGraphic {
 		///
 		/// @param index the point index : 0,1,2
 		/// @return the point need to access
-		inline DPoint<T> operator[](int index) {
+		inline const DPoint<T> operator[](int index) const {
 			assert(index < 3 && index > -1);
 			return triangle_points_[index];
 		}
 	public:
 		/// @breif calculate the normal of triangle
 		/// @return the triangle normal
-		DDirection<T> Normal() {
+		DDirection<T> Normal() const{
 			DPoint<T> v1 = triangle_points_[1] - triangle_points_[0];
 			DPoint<T> v2 = triangle_points_[2] - triangle_points_[0];
 
