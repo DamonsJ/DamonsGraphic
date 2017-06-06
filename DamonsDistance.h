@@ -2,7 +2,7 @@
 #define _DAMONS_DISTANCE_H_
 
 #include "DamonsPoint.h"
-#include "DamonsLine.h"
+#include "DamonsSegment.h"
 #include "DamonsDirection.h"
 #include "DamonsBox.h"
 #include "DamonsTriangle.h"
@@ -30,11 +30,11 @@ namespace DGraphic {
 		/// @brief Calculate the distance between point and line
 		///
 		/// @param p DPoint of type T
-		/// @param l DLine  of type T.
+		/// @param l DSegment  of type T.
 		/// @param The distance between point  and line
 
 		template <class T>
-		static inline T PointToLine(const DPoint<T> &p, const DLine<T> &l) {
+		static inline T PointToLine(const DPoint<T> &p, const DSegment<T> &l) {
 			/// assume the line is Ps + (Pe-Ps)*t,where t >= 0 and t <= 1
 			/// if the nearest point of p lie between the start and end point of line
 			/// then we can calculate t,and the nearest point ,so we can calculate distance
@@ -123,9 +123,9 @@ namespace DGraphic {
 				return p.Distance(npt);
 			}
 			else {
-				DLine<T> l1 = DLine<T>(tri[0], tri[1]);
-				DLine<T> l2 = DLine<T>(tri[1], tri[2]);
-				DLine<T> l3 = DLine<T>(tri[2], tri[0]);
+				DSegment<T> l1 = DSegment<T>(tri[0], tri[1]);
+				DSegment<T> l2 = DSegment<T>(tri[1], tri[2]);
+				DSegment<T> l3 = DSegment<T>(tri[2], tri[0]);
 
 				T d1 = PointToLine(p, l1);
 				T d2 = PointToLine(p, l2);

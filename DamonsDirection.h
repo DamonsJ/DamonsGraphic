@@ -3,7 +3,7 @@
 
 #include "DamonsObject.h"
 #include "DamonsPoint.h"
-#include "DamonsLine.h"
+#include "DamonsSegment.h"
 #include "DamonsRay.h"
 
 namespace DGraphic {
@@ -24,10 +24,10 @@ namespace DGraphic {
 
 		}
 
-		/// @brief create a direction with a DLine
+		/// @brief create a direction with a DSegment
 
-		/// @param l DLine 
-		DDirection(DLine<T> &l) {
+		/// @param l DSegment 
+		DDirection(DSegment<T> &l) {
 			DVector<T, 3> d = l.to_vector();
 			dir_ = DPoint<T>(d.Normalized());
 		}

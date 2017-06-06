@@ -11,18 +11,18 @@ namespace DGraphic {
 	class DDirection;
 
 
-	///class DLine
+	///class DSegment
 	///@breif line with 2 point of Type T as line segment
 	///
-	/// DLine stores <b>2</b> elements of points
+	/// DSegment stores <b>2</b> elements of points
 	/// @tparam T type of Point.
 
 	template< class T = double>
-	class DLine: public DObject
+	class DSegment: public DObject
 	{
 	public:
 		/// @brief Create an uninitialized Line.
-		inline DLine() {
+		inline DSegment() {
 		}
 
 		/// @brief create a line with two point
@@ -30,7 +30,7 @@ namespace DGraphic {
 		/// @param p1 first point of line
 		/// @param p2 second point of line
 
-		DLine(const DPoint< T > &p1, const DPoint< T > &p2) {
+		DSegment(const DPoint< T > &p1, const DPoint< T > &p2) {
 			lpoints_[0] = p1;
 			lpoints_[1] = p2;
 		}
@@ -44,12 +44,12 @@ namespace DGraphic {
 		/// @param p22 second  value of second point
 		/// @param p23 third   value of second point
 
-		explicit DLine(T &p11, T &p12, T &p13, T &p21, T &p22, T &p23) {
+		explicit DSegment(T &p11, T &p12, T &p13, T &p21, T &p22, T &p23) {
 			lpoints_[0] = DPoint<T>(p11, p12, p13);
 			lpoints_[1] = DPoint<T>(p21, p22, p23);
 		}
 
-		~DLine(){
+		~DSegment(){
 		}
 	public:
 		/// @brief get the direction of this line, normlized
@@ -106,7 +106,7 @@ namespace DGraphic {
 		///@param the line need to compare with
 		///@return true if they are equal otherwise false
 
-		inline bool operator ==(const DLine<T> & l) {
+		inline bool operator ==(const DSegment<T> & l) {
 			return ((lpoints_[0] == l[0]) && (lpoints_[1] == l[1]));
 		}
 
@@ -116,7 +116,7 @@ namespace DGraphic {
 		///@param the line need to compare with
 		///@return true if they are not equal otherwise false
 
-		inline bool operator !=(const DLine<T> & l) {
+		inline bool operator !=(const DSegment<T> & l) {
 			return !(*this == l);
 		}
 
@@ -146,9 +146,9 @@ namespace DGraphic {
 		/// @brief opposite the start and source point of this line .
 		///
 		/// @returns a line with source and target interchanged..
-		inline DLine<T> Opposite() const{
+		inline DSegment<T> Opposite() const{
 
-			return DLine<T>(lpoints_[1], lpoints_[0]);
+			return DSegment<T>(lpoints_[1], lpoints_[0]);
 		}
 		/// @brief calculate is the given point on the line
 		///

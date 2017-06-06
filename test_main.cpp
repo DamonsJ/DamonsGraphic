@@ -70,8 +70,8 @@ int main() {
 	DPoint pt9 = pt7 / pt8;
 	pt9 += 1.0f;
 
-	DLine<float > dl1(pt1, pt9);
-	DLine<float > dl2(pt1, pt9);
+	DSegment<float > dl1(pt1, pt9);
+	DSegment<float > dl2(pt1, pt9);
 
 	std::wstring wst = dl1.ToWString();
 	std::string str = dl1.ToString();
@@ -88,7 +88,7 @@ int main() {
 	DPoint pt13(0.0f, 0.0f, 10.0f);
 	DPoint pt14(20.0f, 0.0f, 10.0f);
 	DPoint pt15(10.00001f, 10.0000001f, 0.0000001f);
-	DLine<float > dl3(pt13, pt14);
+	DSegment<float > dl3(pt13, pt14);
 	bool isOn = dl3.Has_on(pt15);
 
 	DBox<float > box1(pt13, pt14);
@@ -112,7 +112,7 @@ int main() {
 
 	DPoint pt18(0.0f, 0.0f, 0.0f);
 	DPoint pt19(20.0f, 20.0f, 20.0f);
-	DLine<float > dl4(pt18, pt19);
+	DSegment<float > dl4(pt18, pt19);
 	float ds = DDistance::PointToLine(pt16, dl4);
 
 	DRay<float > dl5(pt18, pt19);

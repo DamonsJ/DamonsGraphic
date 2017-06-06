@@ -50,9 +50,6 @@
     <ClInclude Include="DamonsDirection.h">
       <Filter>头文件\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="DamonsLine.h">
-      <Filter>头文件\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="DamonsObject.h">
       <Filter>头文件\Graphics</Filter>
     </ClInclude>
@@ -70,6 +67,9 @@
     </ClInclude>
     <ClInclude Include="DamonsDistance.h">
       <Filter>头文件\Distance</Filter>
+    </ClInclude>
+    <ClInclude Include="DamonsSegment.h">
+      <Filter>头文件\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
