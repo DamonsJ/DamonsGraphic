@@ -34,7 +34,7 @@ namespace DGraphic {
 		/// @param The distance between point  and line
 
 		template <class T>
-		static inline T PointToLine(const DPoint<T> &p, const DSegment<T> &l) {
+		static inline T PointToSegment(const DPoint<T> &p, const DSegment<T> &l) {
 			/// assume the line is Ps + (Pe-Ps)*t,where t >= 0 and t <= 1
 			/// if the nearest point of p lie between the start and end point of line
 			/// then we can calculate t,and the nearest point ,so we can calculate distance
@@ -127,9 +127,9 @@ namespace DGraphic {
 				DSegment<T> l2 = DSegment<T>(tri[1], tri[2]);
 				DSegment<T> l3 = DSegment<T>(tri[2], tri[0]);
 
-				T d1 = PointToLine(p, l1);
-				T d2 = PointToLine(p, l2);
-				T d3 = PointToLine(p, l3);
+				T d1 = PointToSegment(p, l1);
+				T d2 = PointToSegment(p, l2);
+				T d3 = PointToSegment(p, l3);
 
 				return std::min(d1, std::min(d2,d3));
 			}

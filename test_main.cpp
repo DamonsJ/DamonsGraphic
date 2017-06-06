@@ -113,7 +113,7 @@ int main() {
 	DPoint pt18(0.0f, 0.0f, 0.0f);
 	DPoint pt19(20.0f, 20.0f, 20.0f);
 	DSegment<float > dl4(pt18, pt19);
-	float ds = DDistance::PointToLine(pt16, dl4);
+	float ds = DDistance::PointToSegment(pt16, dl4);
 
 	DRay<float > dl5(pt18, pt19);
 	float dt = DDistance::PointToRay(pt16, dl5);
