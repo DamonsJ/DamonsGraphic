@@ -62,7 +62,7 @@ namespace DGraphic {
 
 		/// @param p1 start point of direction
 		/// @param p2 end   point of direction
-		DDirection(DPoint<T> &p1, DPoint<T> &p2) {
+		DDirection(const DPoint<T> &p1, const DPoint<T> &p2) {
 			dir_ = p2 - p1;
 			dir_.Normalize();
 		}
@@ -142,6 +142,34 @@ namespace DGraphic {
 		/// @return the third value of direction.
 		inline const T& z() const {
 			return dir_.z();
+		}
+
+		/// @brief Calculate the dot product of point and direction
+		///
+		/// @param v1  point .
+		/// @return The dot product of this and v1.
+
+		inline T DotProduct(const DPoint<T>& v1) {
+			return (v1[0] * dir_[0] + v1[1] * dir_[1] + v1[2] * dir_[2]);
+		}
+
+		/// @brief Calculate the dot product of two direction,in-place.
+		///
+		/// @param v1 First direction.
+		/// @return The dot product of this and v1.
+
+		inline T DotProduct(const DDirection<T>& v1) {
+			return (v1[0] * dir_[0] + v1[1] * dir_[1] + v1[2] * dir_[2]);
+		}
+		/// @brief Calculate the cross product of two directions.
+		///
+		/// @param v second direction.
+		/// @return The cross product of this and v.
+		inline  DDirection<T> CrossProduct(const DDirection<T>& v) {
+
+			return DDirection<T>(dir_[1] * v[2] - dir_[2] * v[1],
+								 dir_[2] * v[0] - dir_[0] * v[2],
+								 dir_[0] * v[1] - dir_[1] * v[0]);
 		}
 
 		///@breif compare if two direction is equal

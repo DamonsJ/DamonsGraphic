@@ -119,6 +119,9 @@ int main() {
 	float dt = DDistance::PointToRay(pt16, dl5);
 	float dt1 = DDistance::PointToTriangle(pt16,tri);
 
+	DLine<float > dl6(pt18, pt19);
+	float dt2 = DDistance::PointToLine(pt16,dl6);
+
 	system("pause");
 	return 0;
 }

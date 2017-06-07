@@ -152,6 +152,43 @@ namespace DGraphic {
 			}
 		}
 
+		/// @brief Calculate the min distance between two lines
+		///
+		/// @param l1 DLine of type T
+		/// @param l2 DLine  of type T.
+		/// @return The min distance between two lines
+
+		template<class T>
+		static inline T LineToLine(const DLine<T> &l1, const DLine<T> &l2) {
+			DPoint<T> u =( l1.GetSourcePoint() - l2.GetSourcePoint());
+
+			DDirection<T> d0 = l1.Direction();
+			DDirection<T> d1 = l2.Direction();
+
+			T a = d0.DotProduct(d0);
+			T b = d0.DotProduct(d1);
+			T c = d1.DotProduct(d1);
+			T d = d0.DotProduct(u);
+			T e = d1.DotProduct(u);
+
+			T s = 0.0f;
+			T t = 0.0f;
+			if (std::abs(a*c - b*b) < DEplision) {
+				s = 0.0f;
+				t = (b > c ? d / b : e / c);
+			}
+			else {
+				T inv = 1.0 / (a*c - b*b);
+				s = (b*e - d*c)*inv;
+				t = (a*e - d*b)*inv;
+
+			}
+
+			DPoint<T> r = u + DPoint<T>((s*d0[0] - t*d1[0]), (s*d0[1] - t*d1[1]), (s*d0[2] - t*d1[2]));
+
+			return r.Length();
+		}
+
 	protected:
 	};
 };

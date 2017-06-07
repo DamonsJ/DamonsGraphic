@@ -134,7 +134,7 @@ namespace DGraphic {
 		/// @param p the point need to project
 		/// @return  projection point
 
-		inline DPoint<T> Projection(const DPoint<T> &p) {
+		inline  DPoint<T> Projection(const DPoint<T> &p) const {
 
 			DPoint<T> norm(direction_.x(), direction_.y(), direction_.z());
 			T s1 = norm.DotProduct(p);
