@@ -122,6 +122,13 @@ int main() {
 	DLine<float > dl6(pt18, pt19);
 	float dt2 = DDistance::PointToLine(pt16,dl6);
 
+	DPoint pt20(00.0f, 20.0f, 20.0f);
+	DPoint pt21(0.0f, 0.0f, 20.0f);
+	DLine<float > dl7(pt18, pt16);
+	DLine<float > dl8(pt21, pt20);
+	float dt3 = DDistance::LineToLine(dl7, dl8);
+
+
 	system("pause");
 	return 0;
 }

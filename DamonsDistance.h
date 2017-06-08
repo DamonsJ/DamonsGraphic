@@ -181,13 +181,13 @@ namespace DGraphic {
 				T inv = 1.0 / (a*c - b*b);
 				s = (b*e - d*c)*inv;
 				t = (a*e - d*b)*inv;
-
 			}
 
 			DPoint<T> r = u + DPoint<T>((s*d0[0] - t*d1[0]), (s*d0[1] - t*d1[1]), (s*d0[2] - t*d1[2]));
 
 			return r.Length();
 		}
+
 
 	protected:
 	};
