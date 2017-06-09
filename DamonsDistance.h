@@ -160,6 +160,10 @@ namespace DGraphic {
 
 		template<class T>
 		static inline T LineToLine(const DLine<T> &l1, const DLine<T> &l2) {
+			/// assume P and Q is the nearest point
+			/// P = p1+s*d1 Q = p2+t*d2
+			/// (P-Q)*d1 = 0 
+			/// (P-Q)*d2 = 0
 			DPoint<T> u =( l1.GetSourcePoint() - l2.GetSourcePoint());
 
 			DDirection<T> d0 = l1.Direction();
@@ -187,6 +191,145 @@ namespace DGraphic {
 
 			return r.Length();
 		}
+
+		/// @brief Calculate the min distance between two segments
+		///
+		/// @param l1 DSegment of type T
+		/// @param l2 DSegment  of type T.
+		/// @return The min distance between two segments
+
+		template<class T>
+		static inline T SegmentToSegment(const DSegment<T> &l1, const DSegment<T> &l2) {
+			///same with LineToLine but need to check range
+			DPoint<T> u = (l1.GetStartPoint() - l2.GetStartPoint());
+
+			DPoint<T> d0 = l1.GetEndPoint() - l1.GetStartPoint();
+			DPoint<T> d1 = l2.GetEndPoint() - l2.GetStartPoint();
+
+			T a = d0.DotProduct(d0);
+			T b = d0.DotProduct(d1);
+			T c = d1.DotProduct(d1);
+			T d = d0.DotProduct(u);
+			T e = d1.DotProduct(u);
+
+			T s = 0.0f;
+			T t = 0.0f;
+			T det = (a*c - b*b);
+
+			T sD, tD;
+
+			if (std::abs(a*c - b*b) < DEplision) {
+				s = 0.0f;
+				t = e;
+				tD = c;
+				sD = det;
+			}
+			else {
+				s = (b*e - d*c);
+				t = (a*e - d*b);
+			}
+
+			sD = det;
+			if (s < DEplision) {
+				s = 0.0;
+				t = e;
+				tD = c;
+			}
+			else if (s > (det - DEplision)) {
+				s = det;
+				t = e + b;
+				tD = c;
+			}
+			else {
+				tD = det;
+			}
+
+			if (t < DEplision) {
+				t = 0.0;
+				if (-d < DEplision) {
+					s = 0.0;
+				 }
+				else if (-d > a) {
+					s = sD;
+				}
+				else {
+					s = -d;
+					sD = a;
+				}
+			}
+			else if (t > (det - DEplision)) {
+				t = tD;
+				if ((-d+b) < DEplision) {
+					s = 0.0;
+				}
+				else if ((-d + b) > a) {
+					s = sD;
+				}
+				else {
+					s = -d+b;
+					sD = a;
+				}
+			}
+	
+			s = s / sD;
+			t = t / tD;
+
+			DPoint<T> r = u + DPoint<T>((s*d0[0] - t*d1[0]), (s*d0[1] - t*d1[1]), (s*d0[2] - t*d1[2]));
+
+			return r.Length();
+		}
+
+		/// @brief Calculate the min distance between line and ray
+		///
+		/// @param l1 DLine of type T
+		/// @param l2 DRay  of type T.
+		/// @return The min distance between line and ray
+
+		template<class T>
+		static inline T LineToRay(const DLine<T> &l1, const DRay<T> &l2) {
+
+			DPoint<T> u = (l1.GetSourcePoint() - l2.GetSourcePoint());
+
+			DDirection<T> d0 = l1.Direction();
+			DDirection<T> d1 = l2.Direction();
+
+			T a = d0.DotProduct(d0);
+			T b = d0.DotProduct(d1);
+			T c = d1.DotProduct(d1);
+			T d = d0.DotProduct(u);
+			T e = d1.DotProduct(u);
+
+			T s = 0.0f;
+			T t = 0.0f;
+			T det = (a*c - b*b);
+
+			T sD, tD;
+			sD = det;
+			if (std::abs(a*c - b*b) < DEplision) {
+				s = 0.0f;
+				t = e;
+				tD = c;
+				sD = det;
+			}
+			else {
+				s = (b*e - d*c);
+				t = (a*e - d*b);
+			}
+
+			if (t < DEplision) {
+				t = 0.0;
+				s = -d;
+				sD = a;
+			}
+
+			s = s / sD;
+			t = t / tD;
+
+			DPoint<T> r = u + DPoint<T>((s*d0[0] - t*d1[0]), (s*d0[1] - t*d1[1]), (s*d0[2] - t*d1[2]));
+
+			return r.Length();
+		}
+
 
 
 	protected:
