@@ -128,6 +128,25 @@ int main() {
 	DLine<float > dl8(pt21, pt20);
 	float dt3 = DDistance::LineToLine(dl7, dl8);
 
+	DPoint pt22(0.0f, 0.0f, 0.0f);
+	DPoint pt23(20.0f, 20.0f, 20.0f);
+	DPoint pt24(20.0f, 0.0f, 0.0f);
+	DPoint pt25(0.0f, 20.0f, 0.0f);
+	DLine<float > dl9(pt22, pt23);
+	DLine<float > d20(pt24, pt25);
+	float dt4 = DDistance::LineToLine(dl9, d20);
+
+	DSegment<float > s1(pt22, pt23);
+	DSegment<float > s2(pt24, pt25);
+	float dt5 = DDistance::SegmentToSegment(s1, s2);
+
+	DRay<float > r1(pt22, pt23);
+	DRay<float > r2(pt24, pt25);
+	float dt6 = DDistance::RayToRay(r1, r2);
+
+	float dt7 = DDistance::LineToRay(dl9, r2);
+	float dt8 = DDistance::LineToSegment(dl9, s2);
+	float dt9 = DDistance::RayToSegment(r1, s2);
 
 	system("pause");
 	return 0;
