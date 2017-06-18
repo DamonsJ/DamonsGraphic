@@ -3,6 +3,7 @@
 #include "DamonsMatrix.h"
 #include "DamonsQuaternion.h"
 #include "DamonsDistance.h"
+#include "DamonsIntersect.h"
 
 using namespace DMath;
 using namespace DGraphic;
@@ -147,6 +148,24 @@ int main() {
 	float dt7 = DDistance::LineToRay(dl9, r2);
 	float dt8 = DDistance::LineToSegment(dl9, s2);
 	float dt9 = DDistance::RayToSegment(r1, s2);
+
+	DPoint res;
+	DDirection<float > dri3(1, 0, 0);
+	DPoint pt26(-20.0f, 20.0f, 0.0f);
+	DPlane<float > plane3(pt26, dri3);
+
+	bool isinter = DIntersection::LineWithPlane(d20,plane3,res);
+	bool isinte1 = DIntersection::RayWithPlane(r2, plane3, res);
+	bool isinte2 = DIntersection::SegmentWithPlane(s2, plane3, res);
+
+	DPoint pt27(-20.0f, 0.0f, 0.0f);
+	DPoint pt28(-20.0f, 60.0f, 0.0f);
+	DPoint pt29(-20.0f, 60.0f, 20.0f);
+	DTriangle<float> tri1(pt27,pt28,pt29);
+
+	bool isinter3 = DIntersection::LineWithTriangle(d20, tri1, res);
+	bool isinter4 = DIntersection::RayWithTriangle(r2, tri1, res);
+	bool isinter5 = DIntersection::SegmentWithTriangle(s2, tri1, res);
 
 	system("pause");
 	return 0;

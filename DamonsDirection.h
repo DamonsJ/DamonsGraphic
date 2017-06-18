@@ -172,6 +172,17 @@ namespace DGraphic {
 								 dir_[0] * v[1] - dir_[1] * v[0]);
 		}
 
+		/// @brief Calculate the cross product of direction and vector.
+		///
+		/// @param v vector.
+		/// @return The cross product of this and v.
+		inline  DPoint<T> CrossProduct(const DPoint<T>& v) {
+
+			return DPoint<T>(dir_[1] * v[2] - dir_[2] * v[1],
+				dir_[2] * v[0] - dir_[0] * v[2],
+				dir_[0] * v[1] - dir_[1] * v[0]);
+		}
+
 		///@breif compare if two direction is equal
 		/// direction is equal if their elements is equal
 		///

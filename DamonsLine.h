@@ -80,6 +80,14 @@ namespace DGraphic {
 			return spoint_;
 		}
 
+		/// @brief get a point on line with a paramter t
+		/// @param t distance away from origin point 
+		/// @return the result point of the line.
+		inline  DPoint< T > GetPointOnLine(T t) const {
+			DPoint<T > res = spoint_ + DPoint<T>(t*direction_.x(), t*direction_.y(), t*direction_.z());
+			return res;
+		}
+
 		///@breif compare if two line is equal
 		/// two line is equal  if they have a non empty intersection and the same direction. 
 		///
