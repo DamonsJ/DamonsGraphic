@@ -11,6 +11,8 @@ namespace DGraphic {
 	template<class T>
 	class DBox;
 
+	template<class T>
+	class DPlane;
 	/// class DTriangle
 	/// @breif creat a DTriangle with three points
 	///
@@ -88,6 +90,12 @@ namespace DGraphic {
 			box.ExtendBox(triangle_points_[2]);
 
 			return box;
+		}
+		/// @breif get the plane of triangle
+		/// @return the plane
+		DPlane<T> Plane(){
+			DDirection<T> dir = Normal();
+			return DPlane<T>(triangle_points_[0],dir);
 		}
 		/// @breif calculate the area of triangle
 		/// @return the area

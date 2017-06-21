@@ -167,6 +167,15 @@ int main() {
 	bool isinter4 = DIntersection::RayWithTriangle(r2, tri1, res);
 	bool isinter5 = DIntersection::SegmentWithTriangle(s2, tri1, res);
 
+	DDirection<float > dri4(0, 1, 0);
+	DPlane<float > plane4(pt22, dri4);
+
+	DObject obj;
+	DIntersection::TrianglePlaneIntersectType tp = DIntersection::PlaneWithTriangle(plane4, tri1, obj);
+
+	DPlane<float > plane5(pt26, dri4);
+	DIntersection::TrianglePlaneIntersectType tp1 = DIntersection::PlaneWithTriangle(plane5, tri1, obj);
+
 	system("pause");
 	return 0;
 }
