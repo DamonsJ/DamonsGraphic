@@ -176,6 +176,17 @@ int main() {
 	DPlane<float > plane5(pt26, dri4);
 	DIntersection::TrianglePlaneIntersectType tp1 = DIntersection::PlaneWithTriangle(plane5, tri1, obj);
 
+	DBox<float> box_r(pt22, pt23);
+	DPoint ray_pt1(0.0f,20.0001f,0.0f);
+	DDirection<float > ray_dir1(1.0f, 1.0f, 1.0f);
+	DPoint  ray_pt2(0.0f, -0.001f, 0.0f);
+	DDirection<float > ray_dir2(1.0f, 0.0f, 0.0f);
+	DRay<float> ray_b1(ray_pt1, ray_dir1);
+	DRay<float> ray_b2(ray_pt2, ray_dir2);
+
+	bool overlap1 = DIntersection::RayWithAABB(ray_b1, box_r);
+	bool overlap2 = DIntersection::RayWithAABB(ray_b2, box_r);
+
 	system("pause");
 	return 0;
 }

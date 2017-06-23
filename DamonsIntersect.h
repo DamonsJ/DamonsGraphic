@@ -523,13 +523,18 @@ namespace DGraphic {
 				}
 			}
 
+			/// @brief test if plane and triangle is intersected
+			///
+			/// @param tri1 DTriangle  of type T
+			/// @param tri2 DTriangle  of type T.
+			/// @return a bool value that whether two triangle is intersected
 			template<class T>
 			static bool TriangleWithTriangle(DTriangle<T> &tri1, DTriangle<T> &tri2){
 
-				///1.
+				///1. triangle is degenerated , return
 				if (tri1.Is_degenerate() || tri2.Is_degenerate())
 					return false;
-				///2.
+				///2. triangle is on the one side of another,return
 				DPlane<T> plane1 = tri1.Plane();
 				DDirection<T > n1 = plane1.GetDirection();
 				float dis1 = n1.DotProduct((tri2[0] - plane1.GetOrigin()));
@@ -553,9 +558,10 @@ namespace DGraphic {
 				///3.
 				DPlane<T> plane2 = tri2.Plane();
 				DDirection<T> n2 = plane2.GetDirection();
-
+				//two triangle plane is parallel
 				DDirection<T> n12 = n1.CrossProduct(n2);
 				if ((n12.x()*n12.x() + n12.y()*n12.y() + n12.z()*n12.z()) < DEplision){
+					//with same plane
 					if (std::abs(dis1) < DEplision || std::abs(dis2) < DEplision || std::abs(dis3) < DEplision)
 					{
 						float A[3];
@@ -603,6 +609,7 @@ namespace DGraphic {
 
 						return false;
 					}
+					// plane is parallel and seperate
 					else{
 						return false;
 					}
@@ -618,11 +625,11 @@ namespace DGraphic {
 					//all point above or below plane
 					return false;
 				}
-				///5.
+				///5.get the intersect line of two plane
 				DLine<T> l;
 				bool isinter = PlaneWithPlane(plane1, plane2, l);
 				assert(isinter);
-				///6.
+				///6.project triangle to intersect line
 				DDirection<T> d = l.Direction();
 				DPoint<T> pl = l.GetSourcePoint();
 
@@ -643,6 +650,35 @@ namespace DGraphic {
 				if (tmax < smin || smax < tmin){
 					return false;
 				}
+
+				return true;
+			}
+
+			/// @brief test if ray and aabb box is intersected
+			///
+			/// @param ray DRay  of type T
+			/// @param box DBox  of type T.
+			/// @return a bool value that whether ray and aabb is intersected
+			template<class T>
+			static bool RayWithAABB(DRay<T > &ray,DBox<T> &box){
+				///origin point of ray
+				DPoint<T > mOrigin = ray.GetSourcePoint();
+				/// direction of ray
+				DDirection<T> mDir = ray.Direction();
+				/// make abs of direction
+				DDirection<T> mFDir = DDirection<T>(std::abs(mDir.x()), std::abs(mDir.y()), std::abs(mDir.z()));
+				///box center and extent
+				DPoint<T > center  = box.GetCenter();
+				DPoint<T > extents = box.GetExtents();
+
+				T Dx = mOrigin.x() - center.x();	if (std::abs(Dx) > extents.x() && Dx*mDir.x() >= static_cast<T>(0))	return false;
+				T Dy = mOrigin.y() - center.y();	if (std::abs(Dy) > extents.y() && Dy*mDir.y() >= static_cast<T>(0))	return false;
+				T Dz = mOrigin.z() - center.z();	if (std::abs(Dz) > extents.z() && Dz*mDir.z() >= static_cast<T>(0))	return false;
+
+				T f;
+				f = mDir.y() * Dz - mDir.z() * Dy;		if (std::abs(f) > extents.y()*mFDir.z() + extents.z()*mFDir.y())	return false;
+				f = mDir.z() * Dx - mDir.x() * Dz;		if (std::abs(f) > extents.x()*mFDir.z() + extents.z()*mFDir.x())	return false;
+				f = mDir.x() * Dy - mDir.y() * Dx;		if (std::abs(f) > extents.x()*mFDir.y() + extents.y()*mFDir.x())	return false;
 
 				return true;
 			}
