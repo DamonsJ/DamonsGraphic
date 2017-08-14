@@ -216,7 +216,7 @@ namespace DGraphic {
 				DPoint<T> q = s.CrossProduct(e1);
 
 				T v = OneOverDet*(ld.DotProduct(q));
-				if (v < 0.0 || v > 1.0)
+				if (v < 0.0 || (v+u) > 1.0)
 					return false;
 
 				T t = (e2.DotProduct(q))* OneOverDet;

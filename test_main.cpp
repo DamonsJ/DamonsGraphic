@@ -187,6 +187,18 @@ int main() {
 	bool overlap1 = DIntersection::RayWithAABB(ray_b1, box_r);
 	bool overlap2 = DIntersection::RayWithAABB(ray_b2, box_r);
 
+
+	DPoint pt30(0.0f, 100.0f, 0.0f);
+	DPoint pt31(0.0f, 0.0f, 0.0f);
+	DPoint pt32(0.0f, 100.0f, 80.0f);
+	DTriangle<float> trit(pt30, pt31, pt32);
+
+	DPoint pt33(-1.5f, 96.5f, 77.5f);
+	DPoint pt34(15.5f, 96.5f, 77.5f);
+	DLine<float > dlt(pt33, pt34);
+
+	bool isintert = DIntersection::LineWithTriangle(dlt, trit, res);
+
 	system("pause");
 	return 0;
 }
