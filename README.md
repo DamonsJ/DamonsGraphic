@@ -1,5 +1,5 @@
 # DamonsGraphic
-basic compute graphic alogrithm
+basic compute graphic alogrithm mainly learned from google opensource code :https://github.com/google/mathfu
 
 DamonsGraphic is edited by Damons.
 It means to imply some basic graphic alogrithm like: 3 dimension distance and 3 dimension intersection
