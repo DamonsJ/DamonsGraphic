@@ -20,7 +20,7 @@ namespace DGraphic {
 	{
 	public:
 		/// @brief Create an uninitialized Ray.
-		DRay ();
+		DRay() {}
 
 		/// @brief create a ray with source point and direction
 		///
