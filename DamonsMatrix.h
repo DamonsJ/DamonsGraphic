@@ -12,7 +12,7 @@
 /// This will perform a given OP on each matrix column and return the result
 #define DAMONSMATH_MAT_OPERATOR(OP)                  \
   {                                                  \
-    Matrix<T, rows, columns> result;                 \
+    DMatrix<T, rows, columns> result;                 \
     DAMONSMATH_MAT_OPERATION(result.data_[i] = (OP)); \
     return result;                                    \
   }
@@ -492,7 +492,7 @@ namespace DMath {
 		/// @param v The vector of size 3.
 		/// @return Matrix containing the result.
 		static inline DMatrix<T, 4> FromTranslationVector(const DVector<T, 3>& v) {
-			return Matrix<T, 4>(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, v[0], v[1], v[2],
+			return DMatrix<T, 4>(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, v[0], v[1], v[2],
 				1);
 		}
 
@@ -508,7 +508,7 @@ namespace DMath {
 			// construct the matrix for the specialized cases 2, 3, 4, and only run
 			// this method in the general case. This will also allow you to use the
 			// helper methods from specialized classes like Matrix<T, 4, 4>.
-			Matrix<T, rows> return_matrix(Identity());
+			DMatrix<T, rows> return_matrix(Identity());
 			for (int i = 0; i < rows - 1; ++i) 
 				return_matrix(i, i) = v[i];
 
@@ -674,7 +674,7 @@ namespace DMath {
 											  const DMatrix<T, 4, 4>& projection,
 											  const float window_width,
 											  const float window_height) {
-			Vector<T, 3> result;
+			DVector<T, 3> result;
 			UnProjectHelper(window_coord, model_view, projection, window_width,
 				window_height, result);
 			return result;
@@ -902,28 +902,28 @@ namespace DMath {
 		DMatrix<T, 4, 4>* out_m) {
 		DMatrix<T, 4, 4>& out = *out_m;
 		{
-			Vector<T, 4> row(m1[0], m1[4], m1[8], m1[12]);
+			DVector<T, 4> row(m1[0], m1[4], m1[8], m1[12]);
 			out[0]  = DVector<T, 4>::DotProduct(m2.GetColumn(0), row);
 			out[4]  = DVector<T, 4>::DotProduct(m2.GetColumn(1), row);
 			out[8]  = DVector<T, 4>::DotProduct(m2.GetColumn(2), row);
 			out[12] = DVector<T, 4>::DotProduct(m2.GetColumn(3), row);
 		}
 		{
-			Vector<T, 4> row(m1[1], m1[5], m1[9], m1[13]);
+			DVector<T, 4> row(m1[1], m1[5], m1[9], m1[13]);
 			out[1]  = DVector<T, 4>::DotProduct(m2.GetColumn(0), row);
 			out[5]  = DVector<T, 4>::DotProduct(m2.GetColumn(1), row);
 			out[9]  = DVector<T, 4>::DotProduct(m2.GetColumn(2), row);
 			out[13] = DVector<T, 4>::DotProduct(m2.GetColumn(3), row);
 		}
 		{
-			Vector<T, 4> row(m1[2], m1[6], m1[10], m1[14]);
+			DVector<T, 4> row(m1[2], m1[6], m1[10], m1[14]);
 			out[2]  = DVector<T, 4>::DotProduct(m2.GetColumn(0), row);
 			out[6]  = DVector<T, 4>::DotProduct(m2.GetColumn(1), row);
 			out[10] = DVector<T, 4>::DotProduct(m2.GetColumn(2), row);
 			out[14] = DVector<T, 4>::DotProduct(m2.GetColumn(3), row);
 		}
 		{
-			Vector<T, 4> row(m1[3], m1[7], m1[11], m1[15]);
+			DVector<T, 4> row(m1[3], m1[7], m1[11], m1[15]);
 			out[3]  = DVector<T, 4>::DotProduct(m2.GetColumn(0), row);
 			out[7]  = DVector<T, 4>::DotProduct(m2.GetColumn(1), row);
 			out[11] = DVector<T, 4>::DotProduct(m2.GetColumn(2), row);
