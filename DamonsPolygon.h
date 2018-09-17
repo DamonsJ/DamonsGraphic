@@ -43,16 +43,82 @@ namespace DGraphic {
 		/// @brief add a point to polygon
 		///
 		/// @return void
-		void AddPoint(const PolygonPoint &_point) { m_polygonPoints.push_back(_point); }
+		void AddPoint(const DVector<T, 2> &_point) { m_polygonPoints.push_back(_point); }
 		void AddPoint(const T &x, const T &y) { PolygonPoint _pp(x, y); m_polygonPoints.push_back(_pp); }
 	public:
-		bool IsSimple() const { ; }
+		/// @brief get point size of polygon
+		/// @note only count point size,if first point same with last point
+		/// only one counted
+		/// @return unsigned int : point size 
+		unsigned int GetPolygonPointSize() const{
+			return IsClosed()? m_polygonPoints.size() - 1:m_polygonPoints.size();
+		}
+		/// @brief close polygon 
+		/// @return void
+		void ClosePolygon() const{
+			if(!IsClosed()){
+				auto &p = m_polygonPoints.front();
+				m_polygonPoints.push_back(p);
+			}
+		}
+	public:
+		/// @brief tell whether polygon is simple
+		/// @note a polygon is simple when there are two edges intersected
+		/// which means the intersected point is not end point.
+		/// @return  true if simple otherwise false 
+		bool IsSimple() const { 
+			ClosePolygon();
+			unsigned int sz = GetPolygonPointSize();
+			for(unsigned int i = 0;i < sz - 1;++i){
+				if(IsSegmentIntersect(m_polygonPoints[i],m_polygonPoints[i+1],m_polygonPoints[i+1],m_polygonPoints[i+2]))
+					return true;	
+			}
+			return false;
+		}
 		bool IsConvex() const { ; }
 		bool IsCounterClockWise() const { ; }
 		bool IsPointInPolygon() const { ; }
 	public:
-		//¶à±ßÐÎµÄºË
-		//¶à±ßÐÎµÄÈý½ÇÆÊ·Ö
+		//ï¿½ï¿½ï¿½ï¿½ÎµÄºï¿½
+		//ï¿½ï¿½ï¿½ï¿½Îµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê·ï¿½
+
+	protected:
+		/// @brief tell whether polygon is close
+		/// @note a polygon is close when the first and last point is same
+		/// @return  true if close otherwise false 
+	    bool IsClosed() const{
+			auto &p1 = m_polygonPoints.front();
+			auto &p2 = m_polygonPoints.back();
+			auto pd = p1 - p2;
+			return pd.LengthSquared() < DEplision*DEplision;
+		}
+		/// @brief tell whether two segment is intersect
+		/// @return  true if intersect otherwise false 		
+		bool IsSegmentIntersect(DVector<T, 2> &V0,DVector<T, 2> &V1,DVector<T, 2> &U0,DVector<T, 2> &U1) const{
+				 							
+				const T Ax = V1[0] - V0[0];				
+				const T Ay = V1[1] - V0[1];
+				const T Bx = U0[0] - U1[0];								
+				const T By = U0[1] - U1[1];							
+				const T Cx = V0[0] - U0[0];							
+				const T Cy = V0[1] - U0[1];							
+				const T f  = Ay*Bx - Ax*By;								
+				const T d  = By*Cx - Bx*Cy;									
+				if((f>0.0 && d>=0.0 && d<=f) || (f<0.0 && d<=0.0 && d>=f))	
+				{													
+					const T e = Ax*Cy - Ay*Cx;					
+					if(f>0.0)										
+					{												
+						if(e>=0.0 && e<=f) return true;			
+					}												
+					else											
+					{												
+						if(e<=0.0 && e>=f) return true;			
+					}												
+				}
+
+				return false;
+		}
 	protected:
 		typedef DVector<T, 2> PolygonPoint;
 		std::vector<PolygonPoint > m_polygonPoints;
