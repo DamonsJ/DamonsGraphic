@@ -14,45 +14,46 @@ using namespace DGraphic;
 
 int main() {
 
-// 	DVector<float, 3> v1(1.0f,2.0f,3.0f);
-// 	DVector<float, 3> v2(11.0f, 12.0f, 13.0f);
-// 	DVector<float, 3> v = DVector<float,3>::RandomInRange(v1,v2);
-// 	DVector<float, 3> v3 = DMath::RoundUpToPowerOf2(v1);
-// 	std::string str = v3.ToString();
-// 	DVector<float, 3> *v4 = new DVector<float, 3>(5.2f,1.3f,3.2f);
-// 	std::string str4 = v4->ToString();
-// 	delete v4;
-// 
-// 	DMatrix<float, 4> m1(1.0f,12.0f,3.0f,  4.0f,
-// 						 4.0f, 5.0f, 16.0f, 7.0f,
-// 						 8.0f, 9.0f, 10.0f, 11.0f,
-// 						11.0f, 12.0f, 13.0f,14.0f);
-// 
-// 	DMatrix<float, 4> m2 = m1.Transpose();
-// 	DMatrix<float, 4> m3 = DMatrix<float, 4>::Identity();
-// 
-// 	bool isC = m1.InverseWithDeterminantCheck(&m3);
-// 
-// 	std::string strm1 = m1.ToString();
-// 	std::string strm2 = m2.ToString();
-// 	std::string strm3 = m3.ToString();
-// 
-// 	std::cout << strm1 << std::endl<<strm2 << std::endl << strm3;
-// 
-// 	DQuaternion<float> q1(0.50f, 0.76f, 0.38f,0.19f);
-// 	DQuaternion<float> q2(1.40f, 6.3f,8.5f, 5.9f);
-// 	q1.Normalize();
-// 	q2.Normalize();
-// 
-// 	DQuaternion<float> q3 = DQuaternion<float>::Slerp(q1, q2, 1.0f);
-// 
-// 	std::string strq1 = q1.ToString();
-// 	std::string strq2 = q2.ToString();
-// 	std::string strq3 = q3.ToString();
-// 
-// 	std::cout << strq1 << std::endl << strq2 << std::endl << strq3;
-// 	//////////////////////////////////////////////////////////////////////////
+	DVector<float, 3> v1(1.0f, 2.0f, 3.0f);
+	DVector<float, 3> v2(11.0f, 12.0f, 13.0f);
+	DVector<float, 3> v = DVector<float, 3>::RandomInRange(v1, v2);
+	DVector<float, 3> v3 = DMath::RoundUpToPowerOf2(v1);
+	std::string str = v3.ToString();
+	DVector<float, 3> *v4 = new DVector<float, 3>(5.2f, 1.3f, 3.2f);
+	std::string str4 = v4->ToString();
+	delete v4;
 
+	DMatrix<float, 4> m1(1.0f, 12.0f, 3.0f, 4.0f,
+		4.0f, 5.0f, 16.0f, 7.0f,
+		8.0f, 9.0f, 10.0f, 11.0f,
+		11.0f, 12.0f, 13.0f, 14.0f);
+
+	DMatrix<float, 4> m2 = m1.Transpose();
+	DMatrix<float, 4> m3 = DMatrix<float, 4>::Identity();
+	DMatrix<float, 4> m4 = m1 - m3;
+
+	bool isC = m1.InverseWithDeterminantCheck(&m3);
+
+	std::string strm1 = m1.ToString();
+	std::string strm2 = m2.ToString();
+	std::string strm3 = m3.ToString();
+
+	std::cout << strm1 << std::endl << strm2 << std::endl << strm3;
+
+	DQuaternion<float> q1(0.50f, 0.76f, 0.38f, 0.19f);
+	DQuaternion<float> q2(1.40f, 6.3f, 8.5f, 5.9f);
+	q1.Normalize();
+	q2.Normalize();
+
+	DQuaternion<float> q3 = DQuaternion<float>::Slerp(q1, q2, 1.0f);
+
+	std::string strq1 = q1.ToString();
+	std::string strq2 = q2.ToString();
+	std::string strq3 = q3.ToString();
+
+	std::cout << strq1 << std::endl << strq2 << std::endl << strq3;
+ 	//////////////////////////////////////////////////////////////////////////
+	/*
 	typedef DPoint<float > DPoint;
 	DPoint pt1(1.2, 3.1f, 4);
 	DPoint pt2(pt1);
@@ -114,7 +115,7 @@ int main() {
 	DPoint pt17 = plane1.Projection(pt15);
 	DPlane<float > plane2 = plane1.Opposite();
 	bool ison = plane1.Has_on(pt16);
-
+	*/
 	system("pause");
 	return 0;
 }
