@@ -77,5 +77,8 @@
     <ClInclude Include="DamonsIntersect.h">
       <Filter>头文件\Intersection</Filter>
     </ClInclude>
+    <ClInclude Include="DamonsPolygon.h">
+      <Filter>头文件\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

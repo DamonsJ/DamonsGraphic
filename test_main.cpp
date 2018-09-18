@@ -4,6 +4,7 @@
 #include "DamonsQuaternion.h"
 #include "DamonsDistance.h"
 #include "DamonsIntersect.h"
+#include "DamonsPolygon.h"
 
 using namespace DMath;
 using namespace DGraphic;
@@ -48,6 +49,12 @@ int main() {
 	std::string strq3 = q3.ToString();
 
 	std::cout << strq1 << std::endl << strq2 << std::endl << strq3;
+
+	DPolygon<double > poly;
+	poly.AddPoint(2.0, 5.0);
+	poly.AddPoint(6.0, 7.0);
+	poly.AddPoint(4.0, 10.0);
+	bool issimple = poly.IsSimple();
  	//////////////////////////////////////////////////////////////////////////
 	/*
 	typedef DPoint<float > DPoint;

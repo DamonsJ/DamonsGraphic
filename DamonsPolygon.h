@@ -55,9 +55,9 @@ namespace DGraphic {
 		}
 		/// @brief close polygon 
 		/// @return void
-		void ClosePolygon() const{
+		void ClosePolygon() {
 			if(!IsClosed()){
-				auto &p = m_polygonPoints.front();
+				auto p = m_polygonPoints.front();
 				m_polygonPoints.push_back(p);
 			}
 		}
@@ -66,7 +66,7 @@ namespace DGraphic {
 		/// @note a polygon is simple when there are two edges intersected
 		/// which means the intersected point is not end point.
 		/// @return  true if simple otherwise false 
-		bool IsSimple() const { 
+		bool IsSimple() { 
 			ClosePolygon();
 			unsigned int sz = GetPolygonPointSize();
 			for(unsigned int i = 0;i < sz - 1;++i){
@@ -94,7 +94,7 @@ namespace DGraphic {
 		}
 		/// @brief tell whether two segment is intersect
 		/// @return  true if intersect otherwise false 		
-		bool IsSegmentIntersect(DVector<T, 2> &V0,DVector<T, 2> &V1,DVector<T, 2> &U0,DVector<T, 2> &U1) const{
+		bool IsSegmentIntersect(DVector<T, 2> &V0,DVector<T, 2> &V1,DVector<T, 2> &U0,DVector<T, 2> &U1) {
 				 							
 				const T Ax = V1[0] - V0[0];				
 				const T Ay = V1[1] - V0[1];

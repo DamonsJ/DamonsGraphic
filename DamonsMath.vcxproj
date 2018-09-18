@@ -154,6 +154,7 @@
     <ClInclude Include="DamonsDistance.h" />
     <ClInclude Include="DamonsIntersect.h" />
     <ClInclude Include="DamonsLine.h" />
+    <ClInclude Include="DamonsPolygon.h" />
     <ClInclude Include="DamonsSegment.h" />
     <ClInclude Include="DamonsMatrix.h" />
     <ClInclude Include="DamonsObject.h" />
