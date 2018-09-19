@@ -11,14 +11,14 @@ using namespace DGraphic;
 
 int main() {
 
-	// 	DVector<float, 3> v1(1.0f,2.0f,3.0f);
-	// 	DVector<float, 3> v2(11.0f, 12.0f, 13.0f);
-	// 	DVector<float, 3> v = DVector<float,3>::RandomInRange(v1,v2);
-	// 	DVector<float, 3> v3 = DMath::RoundUpToPowerOf2(v1);
-	// 	std::string str = v3.ToString();
-	// 	DVector<float, 3> *v4 = new DVector<float, 3>(5.2f,1.3f,3.2f);
-	// 	std::string str4 = v4->ToString();
-	// 	delete v4;
+	////DVector<float, 3> v1(1.0f,2.0f,3.0f);
+	//DVector<float, 3> v2(11.0f, 12.0f, 13.0f);
+	//DVector<float, 3> v = DVector<float,3>::RandomInRange(v1,v2);
+	//DVector<float, 3> v3 = DMath::RoundUpToPowerOf2(v1);
+	//std::string str = v3.ToString();
+	//DVector<float, 3> *v4 = new DVector<float, 3>(5.2f,1.3f,3.2f);
+	//std::string str4 = v4->ToString();
+	//delete v4;
 
 	DMatrix<float, 4> m1(1.0f, 12.0f, 3.0f, 4.0f,
 		4.0f, 5.0f, 16.0f, 7.0f,
@@ -52,7 +52,7 @@ int main() {
 
 	DPolygon<double > poly;
 	poly.AddPoint(2.0, 5.0);
-	poly.AddPoint(6.0, 7.0);
+	poly.AddPoint(8.0, 7.0);
 	poly.AddPoint(4.0, 10.0);
 	bool issimple = poly.IsSimple();
  	//////////////////////////////////////////////////////////////////////////

@@ -70,7 +70,7 @@ namespace DGraphic {
 			ClosePolygon();
 			unsigned int sz = GetPolygonPointSize();
 			for(unsigned int i = 0;i < sz - 1;++i){
-				if(IsSegmentIntersect(m_polygonPoints[i],m_polygonPoints[i+1],m_polygonPoints[i+1],m_polygonPoints[i+2]))
+				if(IsSegmentIntersect(m_polygonPoints[i],m_polygonPoints[i+1],m_polygonPoints[i+1],m_polygonPoints[i+2]) > 1)
 					return true;	
 			}
 			return false;
@@ -93,31 +93,69 @@ namespace DGraphic {
 			return pd.LengthSquared() < DEplision*DEplision;
 		}
 		/// @brief tell whether two segment is intersect
-		/// @return  true if intersect otherwise false 		
-		bool IsSegmentIntersect(DVector<T, 2> &V0,DVector<T, 2> &V1,DVector<T, 2> &U0,DVector<T, 2> &U1) {
+		/// @note https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
+		/// @return  0 if dosenot intersect
+		///			 1 intersect at endpoint
+		///			 2 overlap
+		///			 1 intersect at a point which is not endpoint
+		int IsSegmentIntersect(DVector<T, 2> &V0,DVector<T, 2> &V1,DVector<T, 2> &U0,DVector<T, 2> &U1) {
 				 							
-				const T Ax = V1[0] - V0[0];				
+				const T Ax = V1[0] - V0[0];
 				const T Ay = V1[1] - V0[1];
-				const T Bx = U0[0] - U1[0];								
-				const T By = U0[1] - U1[1];							
-				const T Cx = V0[0] - U0[0];							
-				const T Cy = V0[1] - U0[1];							
-				const T f  = Ay*Bx - Ax*By;								
-				const T d  = By*Cx - Bx*Cy;									
-				if((f>0.0 && d>=0.0 && d<=f) || (f<0.0 && d<=0.0 && d>=f))	
-				{													
-					const T e = Ax*Cy - Ay*Cx;					
-					if(f>0.0)										
-					{												
-						if(e>=0.0 && e<=f) return true;			
-					}												
-					else											
-					{												
-						if(e<=0.0 && e>=f) return true;			
-					}												
-				}
+				const T Bx = U0[0] - U1[0];
+				const T By = U0[1] - U1[1];
+				const T Cx = V0[0] - U0[0];
+				const T Cy = V0[1] - U0[1];
+				const T f = Ay * Bx - Ax * By;
+				const T d = By * Cx - Bx * Cy;
+				const T e = Ax * Cy - Ay * Cx;
 
-				return false;
+				// the two lines are collinear.
+				if (std::abs(f) < DEplision && std::abs(e) < DEplision) {
+					//intersect at endpoint
+					if ((V0 - U0).LengthSquared() < DEplision*DEplision || (V0 - U1).LengthSquared() < DEplision*DEplision)
+						return 1;
+					else if ((V1 - U0).LengthSquared() < DEplision*DEplision || (V1 - U1).LengthSquared() < DEplision*DEplision)
+						return 1;
+
+					double  l = Ax * Ax + Ay * Ay;
+					double t0 = -(Cx*Ax + Cy*Ay);
+					const T sx = U1[0] - V0[0];
+					const T sy = U1[1] - V0[1];
+					double t1 = (sx * Ax + Ay * sy) / l;
+					//overlap
+					if (std::min(t0, t1) < (1+DEplision) && std::min(t0, t1) > -DEplision)
+						return 2;
+					//disjoint
+					return 0;
+				}
+				//then the two lines are parallel and non-intersecting.
+				else if (std::abs(f) < DEplision && std::abs(e) > DEplision)
+					return 0;
+				//If 0 ≤ t ≤ 1 and 0 ≤ u ≤ 1, the two line segments meet at the point p + t r = q + u s
+				else if (std::abs(f) > DEplision) {
+					// 0 < t < 1 and 0 < u < 1
+					if ((f > 0.0 && d > 0.0 && d < f) || (f < 0.0 && d < 0.0 && d > f))
+						return 3;
+					// t==0 && (u ==0||u==1)
+					else if (std::abs(d) < DEplision && (std::abs(e) < DEplision || std::abs(e - f) < DEplision))
+						return 1;
+					// t==1 && (u ==0||u==1)
+					else if (std::abs(d - f) < DEplision && (std::abs(e) < DEplision || std::abs(e - f) < DEplision))
+						return 1;
+					// u==0 && (t ==0||t==1)
+					else if (std::abs(e) < DEplision && (std::abs(d) < DEplision || std::abs(d - f) < DEplision))
+						return 1;
+					// u==1 && (t ==0||t==1)
+					else if (std::abs(e - f) < DEplision && (std::abs(d) < DEplision || std::abs(d - f) < DEplision))
+						return 1;
+					//end point intersect with another point which is not end point
+					else
+						return 3;
+				}
+				else//Otherwise, the two line segments are not parallel but do not intersect
+					return 0;
+				return 0;
 		}
 	protected:
 		typedef DVector<T, 2> PolygonPoint;
