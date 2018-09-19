@@ -481,12 +481,12 @@ namespace DMath {
 			// So we early-out in cases where it's less then 0.1 degrees.
 			// cos( 0.1 degrees) = 0.99999847691
 			if (dot_product >= static_cast<T>(0.99999847691)) {
-				return Quaternion<T>::identity;
+				return DQuaternion<T>::identity;
 			}
 			// If the vectors point in opposite directions, return a 180 degree
 			// rotation, on an arbitrary axis.
 			if (dot_product <= static_cast<T>(-0.99999847691)) {
-				return Quaternion<T>(0, PerpendicularVector(start));
+				return DQuaternion<T>(0, PerpendicularVector(start));
 			}
 			// Degenerate cases have been handled, so if we're here, we have to
 			// actually compute the angle we want:

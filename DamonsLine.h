@@ -172,11 +172,11 @@ namespace DGraphic {
 		/// @return wstring of line data.
 		inline std::wstring ToWString() const {
 			std::wstring str;
-			str = L"first point data: \n";
-			str += lpoints_[0].ToWString();
+			str = L" point data: \n";
+			str += spoint_.ToWString();
 
-			str += L"\nsecond point data: \n";
-			str += lpoints_[1].ToWString();
+			str += L"\ndirection data: \n";
+			str += direction_.ToWString();
 
 			return str;
 		}

@@ -19,8 +19,8 @@ namespace DGraphic {
 		/// make min point infinite large as FLT_MAX
 		/// and max point infinite small as -(FLT_MAX-1)
 		DBox() {
-			minPoint_ = DPoint<T>(static_cast<T>(FLT_MAX), static_cast<T>(FLT_MAX), static_cast<T>(FLT_MAX));
-			maxPoint_ = DPoint<T>(static_cast<T>(-(FLT_MAX-1)), static_cast<T>(-(FLT_MAX - 1)), static_cast<T>(-(FLT_MAX - 1)));
+			minPoint_ = DPoint<T>(static_cast<T>(3.402823466e+38F), static_cast<T>(3.402823466e+38F), static_cast<T>(3.402823466e+38F));
+			maxPoint_ = DPoint<T>(static_cast<T>(-(3.402823466e+38F-1)), static_cast<T>(-(3.402823466e+38F - 1)), static_cast<T>(-(3.402823466e+38F - 1)));
 		}
 
 		/// @brief create an aabb box using min and max point of box

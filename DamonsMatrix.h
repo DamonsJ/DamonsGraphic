@@ -2,7 +2,7 @@
 #define _DAMONS_MATRIX_H_
 
 #include "DamonsVector.h"
-
+#include <cmath>
 /// @cond MATHFU_INTERNAL
 /// This will unroll loops for matrices with <= 4 columns
 #define DAMONSMATH_MAT_OPERATION(OP) DAMONSMATH_UNROLLED_LOOP(i, columns, OP)
