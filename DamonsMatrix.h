@@ -9,7 +9,7 @@
 /// @endcond
 
 /// @cond MATHFU_INTERNAL
-/// This will perform a given OP on each matrix column and return the result
+/// This will perform a given OP on each DMatrix column and return the result
 #define DAMONSMATH_MAT_OPERATOR(OP)                  \
   {                                                  \
     DMatrix<T, rows, columns> result;                 \
@@ -19,7 +19,7 @@
 /// @endcond
 
 /// @cond MATHFU_INTERNAL
-/// This will perform a given OP on each matrix column
+/// This will perform a given OP on each DMatrix column
 #define DAMONSMATH_MAT_SELF_OPERATOR(OP) \
   {                                      \
     DAMONSMATH_MAT_OPERATION(OP);        \
@@ -37,43 +37,114 @@
   ((data1)[r] * (data2)[0] + (data1)[(r) + (size)] * (data2)[1] + \
    (data1)[(r) + 2 * (size)] * (data2)[2])
 
-#define DAMONSMATH_VECTOR_STRIDE_FLOATS(vector) (sizeof(vector) / sizeof(float))
+#define DAMONSMATH_VECTOR_STRIDE_FLOATS(DVector) (sizeof(DVector) / sizeof(float))
 
 /// @endcond
 namespace DMath {
 
+	/// @cond MATHFU_INTERNAL
+	template <class T, int rows, int columns >
+	class DMatrix;
+
+	template <class T, int rows, int columns>
+	inline DMatrix<T, rows, columns> IdentityHelper();
+
+	template <bool check_invertible, class T, int rows, int columns>
+	inline bool InverseHelper(const DMatrix<T, rows, columns>& m, DMatrix<T, rows, columns>* const inverse,T det_thresh);
+
+	template <class T, int rows, int columns>
+	inline void TimesHelper(const DMatrix<T, rows, columns>& m1,const DMatrix<T, rows, columns>& m2,DMatrix<T, rows, columns>* out_m);
+
+	template <class T, int rows, int columns>
+	static inline DMatrix<T, rows, columns> OuterProductHelper(const DVector<T, rows>& v1, const DVector<T, columns>& v2);
+
+	template <class T>
+	inline DMatrix<T, 4, 4> PerspectiveHelper(T fovy, T aspect, T znear, T zfar,T handedness);
+
+	template <class T>
+	static inline DMatrix<T, 4, 4> OrthoHelper(T left, T right, T bottom, T top,T znear, T zfar, T handedness);
+
+	template <class T>
+	static inline DMatrix<T, 4, 4> LookAtHelper(const DVector<T, 3>& at,const DVector<T, 3>& eye,const DVector<T, 3>& up,T handedness);
+
+	template <class T>
+	static inline bool UnProjectHelper(const DVector<T, 3>& window_coord,
+		const DMatrix<T, 4, 4>& model_view,
+		const DMatrix<T, 4, 4>& projection,
+		const float window_width,
+		const float window_height,
+		DVector<T, 3>& result);
+
+	/// Struct used for template specialization for functions that return constants.
+	template <class T>
+	class Constants {
+	public:
+		/// @brief Default determinant threshold used to detect non-invertible DMatrix.
+		///
+		/// @note The determinant grows proportional to the cube of the DMatrix scale,
+		/// so this effectively limits the uniform scale of an invertible DMatrix to
+		/// t^(1/3).
+		///
+		/// @returns Minimum absolute value of the determinant of an invertible
+		/// <code>float</code> DMatrix.
+		///
+		/// @related mathfu::DMatrix::InverseWithDeterminantCheck()
+		static T GetDeterminantThreshold() {
+			// No constant defined for the general case.
+			assert(false);
+			return 0;
+		}
+	};
+	/// @endcond
+
+	/// Functions that return constants for <code>float</code> values.
+	template <>
+	class Constants<float> {
+	public:
+		/// Effective uniform scale limit: ~(1/215)^3
+		static float GetDeterminantThreshold() { return 1e-7f; }
+	};
+
+	/// Functions that return constants for <code>double</code> values.
+	template <>
+	class Constants<double> {
+	public:
+		/// Effective uniform scale limit: ~(1/100000)^3
+		static double GetDeterminantThreshold() { return 1e-15; }
+	};
+
 	/// @{
-	/// @class Matrix
-	/// @brief Matrix stores a set of "rows" by "columns" elements of type T
+	/// @class DMatrix
+	/// @brief DMatrix stores a set of "rows" by "columns" elements of type T
 	/// and provides functions that operate on the set of elements.
 	///
-	/// @tparam T type of each element in the matrix.
-	/// @tparam rows Number of rows in the matrix.
-	/// @tparam columns Number of columns in the matrix.
+	/// @tparam T type of each element in the DMatrix.
+	/// @tparam rows Number of rows in the DMatrix.
+	/// @tparam columns Number of columns in the DMatrix.
 	template<class T,int rows,int columns = rows>
 	class DMatrix {
 
 	public:
-		/// @brief Construct a Matrix of uninitialized values.
+		/// @brief Construct a DMatrix of uninitialized values.
 		inline DMatrix() {}
 
-		/// @brief Construct a Matrix from another Matrix copying each element.
+		/// @brief Construct a DMatrix from another DMatrix copying each element.
 		////
-		/// @param m Matrix that the data will be copied from.
+		/// @param m DMatrix that the data will be copied from.
 		inline DMatrix(const DMatrix<T, rows, columns>& m) {
 			DAMONSMATH_MAT_OPERATION(data_[i] = m.data_[i]);
 		}
 
-		/// @brief Construct a Matrix from a single float.
+		/// @brief Construct a DMatrix from a single float.
 		///
-		/// @param s Scalar value used to initialize each element of the matrix.
+		/// @param s Scalar value used to initialize each element of the DMatrix.
 		explicit inline DMatrix(const T& s) {
 			DAMONSMATH_MAT_OPERATION((data_[i] = DVector<T, rows>(s)));
 		}
 
-		/// @brief Construct a Matrix from four floats.
+		/// @brief Construct a DMatrix from four floats.
 		///
-		/// @note This method only works with a 2x2 Matrix.
+		/// @note This method only works with a 2x2 DMatrix.
 		///
 		/// @param s00 Value of the first row and column.
 		/// @param s10 Value of the second row, first column.
@@ -85,9 +156,9 @@ namespace DMath {
 			data_[1] = DVector<T, rows>(s01, s11);
 		}
 
-		/// @brief Create a Matrix from nine floats.
+		/// @brief Create a DMatrix from nine floats.
 		///
-		/// @note This method only works with a 3x3 Matrix.
+		/// @note This method only works with a 3x3 DMatrix.
 		///
 		/// @param s00 Value of the first row and column.
 		/// @param s10 Value of the second row, first column.
@@ -107,9 +178,9 @@ namespace DMath {
 			data_[2] = DVector<T, rows>(s02, s12, s22);
 		}
 
-		/// @brief Creates a Matrix from twelve floats.
+		/// @brief Creates a DMatrix from twelve floats.
 		///
-		/// @note This method only works with Matrix<float, 4, 3>.
+		/// @note This method only works with DMatrix<float, 4, 3>.
 		///
 		///
 		/// @param s00 Value of the first row and column.
@@ -134,9 +205,9 @@ namespace DMath {
 			data_[2] = DVector<T, rows>(s02, s12, s22, s32);
 		}
 
-		/// @brief Create a Matrix from sixteen floats.
+		/// @brief Create a DMatrix from sixteen floats.
 		///
-		/// @note This method only works with a 4x4 Matrix.
+		/// @note This method only works with a 4x4 DMatrix.
 		///
 		/// @param s00 Value of the first row and column.
 		/// @param s10 Value of the second row, first column.
@@ -165,14 +236,14 @@ namespace DMath {
 			data_[3] = DVector<T, rows>(s03, s13, s23, s33);
 		}
 
-		/// @brief Create 4x4 Matrix from 4, 4 element vectors.
+		/// @brief Create 4x4 DMatrix from 4, 4 element vectors.
 		///
-		/// @note This method only works with a 4x4 Matrix.
+		/// @note This method only works with a 4x4 DMatrix.
 		///
-		/// @param column0 Vector used for the first column.
-		/// @param column1 Vector used for the second column.
-		/// @param column2 Vector used for the third column.
-		/// @param column3 Vector used for the fourth column.
+		/// @param column0 DVector used for the first column.
+		/// @param column1 DVector used for the second column.
+		/// @param column2 DVector used for the third column.
+		/// @param column3 DVector used for the fourth column.
 		inline DMatrix( const DVector<T, 4>& column0, const DVector<T, 4>& column1,
 						const DVector<T, 4>& column2, const DVector<T, 4>& column3) {
 			assert(rows == 4 && columns == 4);
@@ -182,14 +253,14 @@ namespace DMath {
 			data_[3] = column3;
 		}
 
-		/// @brief Create a Matrix from the first row * column elements of an array.
+		/// @brief Create a DMatrix from the first row * column elements of an array.
 		///
-		/// @param a Array of values that the matrix will be iniitlized to.
+		/// @param a Array of values that the DMatrix will be iniitlized to.
 		explicit inline DMatrix(const T* const a) {
 			DAMONSMATH_MAT_OPERATION((data_[i] = DVector<T, rows>(&a[i * columns])));
 		}
 
-		/// @brief Access an element of the matrix.
+		/// @brief Access an element of the DMatrix.
 		///
 		/// @param row Index of the row to access.
 		/// @param column Index of the column to access.
@@ -198,7 +269,7 @@ namespace DMath {
 			return data_[column][row];
 		}
 
-		/// @brief Access an element of the Matrix.
+		/// @brief Access an element of the DMatrix.
 		///
 		/// @param row Index of the row to access.
 		/// @param column Index of the column to access.
@@ -207,21 +278,21 @@ namespace DMath {
 			return data_[column][row];
 		}
 
-		/// @brief Access an element of the Matrix.
+		/// @brief Access an element of the DMatrix.
 		///
 		/// @param i Index of the element to access in flattened memory.  Where
 		/// the column accessed is i / rows and the row is i % rows.
 		/// @return Reference to the data that can be modified by the caller.
 		inline const T& operator()(const int i) const { return operator[](i); }
 
-		/// @brief Access an element of the Matrix.
+		/// @brief Access an element of the DMatrix.
 		///
 		/// @param i Index of the element to access in flattened memory.  Where
 		/// the column accessed is i / rows and the row is i % rows.
 		/// @return Reference to the data that can be modified by the caller.
 		inline T& operator()(const int i) { return operator[](i); }
 
-		/// @brief Access an element of the Matrix.
+		/// @brief Access an element of the DMatrix.
 		///
 		/// @param i Index of the element to access in flattened memory.  Where
 		/// the column accessed is i / rows and the row is i % rows.
@@ -230,7 +301,7 @@ namespace DMath {
 			return const_cast<DMatrix<T, rows, columns>*>(this)->operator[](i);
 		}
 
-		/// @brief Access an element of the Matrix.
+		/// @brief Access an element of the DMatrix.
 		///
 		/// @param i Index of the element to access in flattened memory.  Where
 		/// the column accessed is i / rows and the row is i % rows.
@@ -240,13 +311,13 @@ namespace DMath {
 		}
 
 		/// @cond MATHFU_INTERNAL
-		/// @brief Access a column vector of the Matrix.
+		/// @brief Access a column DVector of the DMatrix.
 		///
 		/// @param i Index of the column to access.
 		/// @return Reference to the data that can be modified by the caller.
 		inline DVector<T, rows>& GetColumn(const int i) { return data_[i]; }
 
-		/// @brief Access a column vector of the Matrix.
+		/// @brief Access a column DVector of the DMatrix.
 		///
 		/// @param i Index of the column to access.
 		/// @return Const reference to the data.
@@ -254,122 +325,122 @@ namespace DMath {
 			return data_[i];
 		}
 
-		/// @brief Negate this Matrix.
+		/// @brief Negate this DMatrix.
 		///
-		/// @return Matrix containing the result.
+		/// @return DMatrix containing the result.
 		inline DMatrix<T, rows, columns> operator-() const {
 			DAMONSMATH_MAT_OPERATOR(-data_[i]);
 		}
 
-		/// @brief Add a Matrix to this Matrix.
+		/// @brief Add a DMatrix to this DMatrix.
 		///
-		/// @param m Matrix to add to this Matrix.
-		/// @return Matrix containing the result.
+		/// @param m DMatrix to add to this DMatrix.
+		/// @return DMatrix containing the result.
 		inline DMatrix<T, rows, columns> operator+(const DMatrix<T, rows, columns>& m) const {
 			DAMONSMATH_MAT_OPERATOR(data_[i] + m.data_[i]);
 		}
 
-		/// @brief Subtract a Matrix from this Matrix.
+		/// @brief Subtract a DMatrix from this DMatrix.
 		///
-		/// @param m Matrix to subtract from this Matrix.
-		/// @return Matrix containing the result.
+		/// @param m DMatrix to subtract from this DMatrix.
+		/// @return DMatrix containing the result.
 		inline DMatrix<T, rows, columns> operator-(const DMatrix<T, rows, columns>& m) const {
 			DAMONSMATH_MAT_OPERATOR(data_[i] - m.data_[i]);
 		}
 
-		/// @brief Add a scalar to each element of this Matrix.
+		/// @brief Add a scalar to each element of this DMatrix.
 		///
-		/// @param s Scalar to add to this Matrix.
-		/// @return Matrix containing the result.
+		/// @param s Scalar to add to this DMatrix.
+		/// @return DMatrix containing the result.
 		inline DMatrix<T, rows, columns> operator+(const T& s) const {
 			DAMONSMATH_MAT_OPERATOR(data_[i] + s);
 		}
 
-		/// @brief Subtract a scalar from each element of this Matrix.
+		/// @brief Subtract a scalar from each element of this DMatrix.
 		///
-		/// @param s Scalar to subtract from this matrix.
-		/// @return Matrix containing the result.
+		/// @param s Scalar to subtract from this DMatrix.
+		/// @return DMatrix containing the result.
 		inline DMatrix<T, rows, columns> operator-(const T& s) const {
 			DAMONSMATH_MAT_OPERATOR(data_[i] - s);
 		}
 
-		/// @brief Multiply each element of this Matrix with a scalar.
+		/// @brief Multiply each element of this DMatrix with a scalar.
 		///
-		/// @param s Scalar to multiply with this Matrix.
-		/// @return Matrix containing the result.
+		/// @param s Scalar to multiply with this DMatrix.
+		/// @return DMatrix containing the result.
 		inline DMatrix<T, rows, columns> operator*(const T& s) const {
 			DAMONSMATH_MAT_OPERATOR(data_[i] * s);
 		}
 
-		/// @brief Divide each element of this Matrix with a scalar.
+		/// @brief Divide each element of this DMatrix with a scalar.
 		///
-		/// @param s Scalar to divide this Matrix with.
-		/// @return Matrix containing the result.
+		/// @param s Scalar to divide this DMatrix with.
+		/// @return DMatrix containing the result.
 		inline DMatrix<T, rows, columns> operator/(const T& s) const {
 			return (*this) * (T(1) / s);
 		}
 
-		/// @brief Multiply this Matrix with another Matrix.
+		/// @brief Multiply this DMatrix with another DMatrix.
 		///
-		/// @param m Matrix to multiply with this Matrix.
-		/// @return Matrix containing the result.
+		/// @param m DMatrix to multiply with this DMatrix.
+		/// @return DMatrix containing the result.
 		inline DMatrix<T, rows, columns> operator*(const DMatrix<T, rows, columns>& m) const {
 			DMatrix<T, rows, columns> result;
 			TimesHelper(*this, m, &result);
 			return result;
 		}
 
-		/// @brief Add a Matrix to this Matrix (in-place).
+		/// @brief Add a DMatrix to this DMatrix (in-place).
 		///
-		/// @param m Matrix to add to this Matrix.
+		/// @param m DMatrix to add to this DMatrix.
 		/// @return Reference to this class.
 		inline DMatrix<T, rows, columns>& operator+=(const DMatrix<T, rows, columns>& m) {
 			DAMONSMATH_MAT_SELF_OPERATOR(data_[i] += m.data_[i]);
 		}
 
-		/// @brief Subtract a Matrix from this Matrix (in-place).
+		/// @brief Subtract a DMatrix from this DMatrix (in-place).
 		///
-		/// @param m Matrix to subtract from this Matrix.
+		/// @param m DMatrix to subtract from this DMatrix.
 		/// @return Reference to this class.
 		inline DMatrix<T, rows, columns>& operator-=(const DMatrix<T, rows, columns>& m) {
 			DAMONSMATH_MAT_SELF_OPERATOR(data_[i] -= m.data_[i]);
 		}
 
-		/// @brief Add a scalar to each element of this Matrix (in-place).
+		/// @brief Add a scalar to each element of this DMatrix (in-place).
 		///
-		/// @param s Scalar to add to each element of this Matrix.
+		/// @param s Scalar to add to each element of this DMatrix.
 		/// @return Reference to this class.
 		inline DMatrix<T, rows, columns>& operator+=(const T& s) {
 			DAMONSMATH_MAT_SELF_OPERATOR(data_[i] += s);
 		}
 
-		/// @brief Subtract a scalar from each element of this Matrix (in-place).
+		/// @brief Subtract a scalar from each element of this DMatrix (in-place).
 		///
-		/// @param s Scalar to subtract from each element of this Matrix.
+		/// @param s Scalar to subtract from each element of this DMatrix.
 		/// @return Reference to this class.
 		inline DMatrix<T, rows, columns>& operator-=(const T& s) {
 			DAMONSMATH_MAT_SELF_OPERATOR(data_[i] -= s);
 		}
 
-		/// @brief Multiply each element of this Matrix with a scalar (in-place).
+		/// @brief Multiply each element of this DMatrix with a scalar (in-place).
 		///
-		/// @param s Scalar to multiply with each element of this Matrix.
+		/// @param s Scalar to multiply with each element of this DMatrix.
 		/// @return Reference to this class.
 		inline DMatrix<T, rows, columns>& operator*=(const T& s) {
 			DAMONSMATH_MAT_SELF_OPERATOR(data_[i] *= s);
 		}
 
-		/// @brief Divide each element of this Matrix by a scalar (in-place).
+		/// @brief Divide each element of this DMatrix by a scalar (in-place).
 		///
-		/// @param s Scalar to divide this Matrix by.
+		/// @param s Scalar to divide this DMatrix by.
 		/// @return Reference to this class.
 		inline DMatrix<T, rows, columns>& operator/=(const T& s) {
 			return (*this) *= (T(1) / s);
 		}
 
-		/// @brief Multiply this Matrix with another Matrix (in-place).
+		/// @brief Multiply this DMatrix with another DMatrix (in-place).
 		///
-		/// @param m Matrix to multiply with this Matrix.
+		/// @param m DMatrix to multiply with this DMatrix.
 		/// @return Reference to this class.
 		inline DMatrix<T, rows, columns>& operator*=(const DMatrix<T, rows, columns>& m) {
 			const DMatrix<T, rows, columns> copy_of_this(*this);
@@ -377,49 +448,49 @@ namespace DMath {
 			return *this;
 		}
 
-		/// @brief Multiply a Vector by a Matrix.
+		/// @brief Multiply a DVector by a DMatrix.
 		///
-		/// @param v Vector to multiply.
-		/// @param m Matrix to multiply.
-		/// @return Matrix containing the result.
+		/// @param v DVector to multiply.
+		/// @param m DMatrix to multiply.
+		/// @return DMatrix containing the result.
 		friend inline DVector<T, columns> operator*(const DVector<T, rows>& v, const DMatrix<T, rows, columns>& m) {
 			const int d = columns;
 			DAMONSMATH_VECTOR_OPERATOR((DVector<T, rows>::DotProduct(m.data_[i], v)));
 		}
 
-		/// @brief Calculate the inverse of this Matrix.
+		/// @brief Calculate the inverse of this DMatrix.
 		///
-		/// This calculates the inverse Matrix such that
+		/// This calculates the inverse DMatrix such that
 		/// <code>(m * m.Inverse())</code> is the identity.
-		/// @return Matrix containing the result.
+		/// @return DMatrix containing the result.
 		inline DMatrix<T, rows, columns> Inverse() const {
 			DMatrix<T, rows, columns> inverse;
 			InverseHelper<false>(*this, &inverse);
 			return inverse;
 		}
 
-		/// @brief Calculate the inverse of this Matrix.
+		/// @brief Calculate the inverse of this DMatrix.
 		///
-		/// This calculates the inverse Matrix such that
+		/// This calculates the inverse DMatrix such that
 		/// <code>(m * m.Inverse())</code> is the identity.
-		/// By contrast to Inverse() this returns whether the matrix is invertible.
+		/// By contrast to Inverse() this returns whether the DMatrix is invertible.
 		///
 		/// The invertible check simply compares the calculated determinant with
 		/// Constants<T>::GetDeterminantThreshold() to roughly determine whether the
-		/// matrix is invertible.  This simple check works in common cases but will
-		/// fail for corner cases where the matrix is a combination of huge and tiny
+		/// DMatrix is invertible.  This simple check works in common cases but will
+		/// fail for corner cases where the DMatrix is a combination of huge and tiny
 		/// values that can't be accurately represented by the floating point
 		/// datatype T.  More extensive checks (relative to the input values) are
 		/// possible but <b>far</b> more expensive, complicated and difficult to
 		/// test.
-		/// @return Whether the matrix is invertible.
+		/// @return Whether the DMatrix is invertible.
 		inline bool InverseWithDeterminantCheck(DMatrix<T, rows, columns>* const inverse)const {
 			return InverseHelper<true>(*this, inverse);
 		}
 
-		/// @brief Calculate the transpose of this Matrix.
+		/// @brief Calculate the transpose of this DMatrix.
 		///
-		/// @return The transpose of the specified Matrix.
+		/// @return The transpose of the specified DMatrix.
 		inline DMatrix<T, columns, rows> Transpose() const {
 			DMatrix<T, columns, rows> transpose;
 
@@ -434,7 +505,7 @@ namespace DMath {
 		/// transform.
 		///
 		/// @note 2-dimensional affine transforms are represented by 3x3 matrices.
-		/// @return Vector with the first two components of column 2 of this Matrix.
+		/// @return DVector with the first two components of column 2 of this DMatrix.
 		inline DVector<T, 2> TranslationVector2D() const {
 			assert(rows == 3 && columns == 3);
 			return DVector<T, 2>(data_[2][0], data_[2][1]);
@@ -444,7 +515,7 @@ namespace DMath {
 		/// transform.
 		///
 		/// @note 3-dimensional affine transforms are represented by 4x4 matrices.
-		/// @return Vector with the first three components of column 3.
+		/// @return DVector with the first three components of column 3.
 		inline DVector<T, 3> TranslationVector3D() const {
 			assert(rows == 4 && columns == 4);
 			return DVector<T, 3>(data_[3][0], data_[3][1], data_[3][2]);
@@ -452,7 +523,7 @@ namespace DMath {
 
 		/// @brief Calculate the outer product of two Vectors.
 		///
-		/// @return Matrix containing the result.
+		/// @return DMatrix containing the result.
 		static inline DMatrix<T, rows, columns> OuterProduct(const DVector<T, rows>& v1, 
 															 const DVector<T, columns>& v2) {
 			return OuterProductHelper(v1, v2);
@@ -460,54 +531,54 @@ namespace DMath {
 
 		/// @brief Calculate the hadamard / component-wise product of two matrices.
 		///
-		/// @param m1 First Matrix.
-		/// @param m2 Second Matrix.
-		/// @return Matrix containing the result.
+		/// @param m1 First DMatrix.
+		/// @param m2 Second DMatrix.
+		/// @return DMatrix containing the result.
 		static inline DMatrix<T, rows, columns> HadamardProduct(const DMatrix<T, rows, columns>& m1, 
 																const DMatrix<T, rows, columns>& m2) {
 			DAMONSMATH_MAT_OPERATOR(m1[i] * m2[i]);
 		}
 
-		/// @brief Calculate the identity Matrix.
+		/// @brief Calculate the identity DMatrix.
 		///
-		/// @return Matrix containing the result.
+		/// @return DMatrix containing the result.
 		static inline DMatrix<T, rows, columns> Identity() {
 			return IdentityHelper<T, rows, columns>();
 		}
 
-		/// @brief Create a 3x3 translation Matrix from a 2-dimensional Vector.
+		/// @brief Create a 3x3 translation DMatrix from a 2-dimensional DVector.
 		///
-		/// This matrix will have an empty or zero rotation component.
+		/// This DMatrix will have an empty or zero rotation component.
 		///
-		/// @param v Vector of size 2.
-		/// @return Matrix containing the result.
+		/// @param v DVector of size 2.
+		/// @return DMatrix containing the result.
 		static inline DMatrix<T, 3> FromTranslationVector(const DVector<T, 2>& v) {
 			return DMatrix<T, 3>(1, 0, 0, 0, 1, 0, v[0], v[1], 1);
 		}
 
-		/// @brief Create a 4x4 translation Matrix from a 3-dimensional Vector.
+		/// @brief Create a 4x4 translation DMatrix from a 3-dimensional DVector.
 		///
-		/// This matrix will have an empty or zero rotation component.
+		/// This DMatrix will have an empty or zero rotation component.
 		///
-		/// @param v The vector of size 3.
-		/// @return Matrix containing the result.
+		/// @param v The DVector of size 3.
+		/// @return DMatrix containing the result.
 		static inline DMatrix<T, 4> FromTranslationVector(const DVector<T, 3>& v) {
 			return DMatrix<T, 4>(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, v[0], v[1], v[2],
 				1);
 		}
 
-		/// @brief Create a square Matrix with the diagonal component set to v.
+		/// @brief Create a square DMatrix with the diagonal component set to v.
 		///
-		/// This is an affine transform matrix, so the dimension of the vector is
-		/// one less than the dimension of the matrix.
+		/// This is an affine transform DMatrix, so the dimension of the DVector is
+		/// one less than the dimension of the DMatrix.
 		///
-		/// @param v Vector containing components for scaling.
-		/// @return Matrix with v along the diagonal, and 1 in the bottom right.
+		/// @param v DVector containing components for scaling.
+		/// @return DMatrix with v along the diagonal, and 1 in the bottom right.
 		static inline DMatrix<T, rows> FromScaleVector(const DVector<T, rows - 1>& v) {
 			// TODO OPT: Use a helper function in a similar way to Identity to
-			// construct the matrix for the specialized cases 2, 3, 4, and only run
+			// construct the DMatrix for the specialized cases 2, 3, 4, and only run
 			// this method in the general case. This will also allow you to use the
-			// helper methods from specialized classes like Matrix<T, 4, 4>.
+			// helper methods from specialized classes like DMatrix<T, 4, 4>.
 			DMatrix<T, rows> return_matrix(Identity());
 			for (int i = 0; i < rows - 1; ++i) 
 				return_matrix(i, i) = v[i];
@@ -515,33 +586,33 @@ namespace DMath {
 			return return_matrix;
 		}
 
-		/// @brief Create a 4x4 Matrix from a 3x3 rotation Matrix.
+		/// @brief Create a 4x4 DMatrix from a 3x3 rotation DMatrix.
 		///
-		/// This Matrix will have an empty or zero translation component.
+		/// This DMatrix will have an empty or zero translation component.
 		///
-		/// @param m 3x3 rotation Matrix.
-		/// @return Matrix containing the result.
+		/// @param m 3x3 rotation DMatrix.
+		/// @return DMatrix containing the result.
 		static inline DMatrix<T, 4> FromRotationMatrix(const DMatrix<T, 3>& m) {
 			return DMatrix<T, 4>(m[0], m[1], m[2], 0, m[3], m[4], m[5], 0, m[6], m[7],
 				m[8], 0, 0, 0, 0, 1);
 		}
 
-		/// @brief Extracts the 3x3 rotation Matrix from a 4x4 Matrix.
+		/// @brief Extracts the 3x3 rotation DMatrix from a 4x4 DMatrix.
 		///
-		/// This resulting Matrix will contain the upper-left 3x3 sub-matrix of the
-		/// input Matrix.
+		/// This resulting DMatrix will contain the upper-left 3x3 sub-DMatrix of the
+		/// input DMatrix.
 		///
-		/// @param m 4x4 Matrix.
-		/// @return rotation Matrix containing the result.
+		/// @param m 4x4 DMatrix.
+		/// @return rotation DMatrix containing the result.
 		static inline DMatrix<T, 3> ToRotationMatrix(const DMatrix<T, 4>& m) {
 			return DMatrix<T, 3>(m[0], m[1], m[2], m[4], m[5], m[6], m[8], m[9],
 				m[10]);
 		}
 
-		/// @brief Constructs a Matrix<float, 4> from an AffineTransform.
+		/// @brief Constructs a DMatrix<float, 4> from an AffineTransform.
 		///
 		/// @param affine An AffineTransform reference to be used to construct
-		/// a Matrix<float, 4> by adding in the 'w' row of [0, 0, 0, 1].
+		/// a DMatrix<float, 4> by adding in the 'w' row of [0, 0, 0, 1].
 		static inline DMatrix<T, 4> FromAffineTransform(const DMatrix<T, 4, 3>& affine) {
 			return DMatrix<T, 4>(affine[0], affine[4], affine[8], static_cast<T>(0),
 				affine[1], affine[5], affine[9], static_cast<T>(0),
@@ -549,85 +620,85 @@ namespace DMath {
 				affine[3], affine[7], affine[11], static_cast<T>(1));
 		}
 
-		/// @brief Converts a Matrix<float, 4> into an AffineTransform.
+		/// @brief Converts a DMatrix<float, 4> into an AffineTransform.
 		///
-		/// @param m A Matrix<float, 4> reference to be converted into an
+		/// @param m A DMatrix<float, 4> reference to be converted into an
 		/// AffineTransform by dropping the fixed 'w' row.
 		///
 		/// @return Returns an AffineTransform that contains the essential
-		/// transformation data from the Matrix<float, 4>.
+		/// transformation data from the DMatrix<float, 4>.
 		static inline DMatrix<T, 4, 3> ToAffineTransform(const DMatrix<T, 4>& m) {
 			return DMatrix<T, 4, 3>(m[0], m[4], m[8], m[12], m[1], m[5], m[9], m[13],
 				m[2], m[6], m[10], m[14]);
 		}
 
-		/// @brief Create a 3x3 rotation Matrix from a 2D normalized directional
-		/// Vector around the X axis.
+		/// @brief Create a 3x3 rotation DMatrix from a 2D normalized directional
+		/// DVector around the X axis.
 		///
-		/// @param v 2D normalized directional Vector.
-		/// @return Matrix containing the result.
+		/// @param v 2D normalized directional DVector.
+		/// @return DMatrix containing the result.
 		static inline DMatrix<T, 3> RotationX(const DVector<T, 2>& v) {
 			return DMatrix<T, 3>(1, 0, 0, 0, v.x, v.y, 0, -v.y, v.x);
 		}
 
-		/// @brief Create a 3x3 rotation Matrix from a 2D normalized directional
-		/// Vector around the Y axis.
+		/// @brief Create a 3x3 rotation DMatrix from a 2D normalized directional
+		/// DVector around the Y axis.
 		///
-		/// @param v 2D normalized directional Vector.
-		/// @return Matrix containing the result.
+		/// @param v 2D normalized directional DVector.
+		/// @return DMatrix containing the result.
 		static inline DMatrix<T, 3> RotationY(const DVector<T, 2>& v) {
 			return DMatrix<T, 3>(v.x, 0, -v.y, 0, 1, 0, v.y, 0, v.x);
 		}
 
-		/// @brief Create a 3x3 rotation Matrix from a 2D normalized directional
-		/// Vector around the Z axis.
+		/// @brief Create a 3x3 rotation DMatrix from a 2D normalized directional
+		/// DVector around the Z axis.
 		///
-		/// @param v 2D normalized directional Vector.
-		/// @return Matrix containing the result.
+		/// @param v 2D normalized directional DVector.
+		/// @return DMatrix containing the result.
 		static inline DMatrix<T, 3> RotationZ(const DVector<T, 2>& v) {
 			return DMatrix<T, 3>(v.x, v.y, 0, -v.y, v.x, 0, 0, 0, 1);
 		}
 
-		/// @brief Create a 3x3 rotation Matrix from an angle (in radians) around
+		/// @brief Create a 3x3 rotation DMatrix from an angle (in radians) around
 		/// the X axis.
 		///
 		/// @param angle Angle (in radians).
-		/// @return Matrix containing the result.
+		/// @return DMatrix containing the result.
 		static inline DMatrix<T, 3> RotationX(T angle) {
 			return RotationX(DVector<T, 2>(cosf(angle), sinf(angle)));
 		}
 
-		/// @brief Create a 3x3 rotation Matrix from an angle (in radians) around
+		/// @brief Create a 3x3 rotation DMatrix from an angle (in radians) around
 		/// the Y axis.
 		///
 		/// @param angle Angle (in radians).
-		/// @return Matrix containing the result.
+		/// @return DMatrix containing the result.
 		static inline DMatrix<T, 3> RotationY(T angle) {
 			return RotationY(DVector<T, 2>(cosf(angle), sinf(angle)));
 		}
 
-		/// @brief Create a 3x3 rotation Matrix from an angle (in radians)
+		/// @brief Create a 3x3 rotation DMatrix from an angle (in radians)
 		/// around the Z axis.
 		///
 		/// @param angle Angle (in radians).
-		/// @return Matrix containing the result.
+		/// @return DMatrix containing the result.
 		static inline DMatrix<T, 3> RotationZ(T angle) {
 			return RotationZ(DVector<T, 2>(cosf(angle), sinf(angle)));
 		}
 
-		/// @brief Create a 4x4 perspective Matrix.
+		/// @brief Create a 4x4 perspective DMatrix.
 		///
 		/// @param fovy Field of view.
 		/// @param aspect Aspect ratio.
 		/// @param znear Near plane location.
 		/// @param zfar Far plane location.
 		/// @param handedness 1.0f for RH, -1.0f for LH
-		/// @return 4x4 perspective Matrix.
+		/// @return 4x4 perspective DMatrix.
 		static inline DMatrix<T, 4, 4> Perspective(T fovy, T aspect, T znear, T zfar,T handedness = 1) {
 			return PerspectiveHelper(fovy, aspect, znear, zfar, handedness);
 		}
 
-		/// @brief Create a 4x4 orthographic Matrix.
+		/// @brief Create a 4x4 orthographic DMatrix.
 		///
 		/// @param left Left extent.
 		/// @param right Right extent.
@@ -636,20 +707,20 @@ namespace DMath {
 		/// @param znear Near plane location.
 		/// @param zfar Far plane location.
 		/// @param handedness 1.0f for RH, -1.0f for LH
-		/// @return 4x4 orthographic Matrix.
+		/// @return 4x4 orthographic DMatrix.
 		static inline DMatrix<T, 4, 4> Ortho(T left, T right, T bottom, T top,
 											T znear,T zfar, T handedness = 1) {
 			return OrthoHelper(left, right, bottom, top, znear, zfar, handedness);
 		}
 
-		/// @brief Create a 3-dimensional camera Matrix.
+		/// @brief Create a 3-dimensional camera DMatrix.
 		///
 		/// @param at The look-at target of the camera.
 		/// @param eye The position of the camera.
-		/// @param up The up vector in the world, for example (0, 1, 0) if the
+		/// @param up The up DVector in the world, for example (0, 1, 0) if the
 		/// y-axis is up.
 		/// @param handedness 1.0f for RH, -1.0f for LH.
-		/// @return 3-dimensional camera Matrix.
+		/// @return 3-dimensional camera DMatrix.
 		/// TODO: Change default handedness to +1 so that it matches Perspective().
 		static inline DMatrix<T, 4, 4> LookAt(const DVector<T, 3>& at,
 											  const DVector<T, 3>& eye,
@@ -664,8 +735,8 @@ namespace DMath {
 		/// A window coordinate on the near plane will have 0 as the z value.
 		/// And a window coordinate on the far plane will have 1 as the z value.
 		/// z value should be with in [0, 1] here.
-		/// @param model_view The Model View matrix.
-		/// @param projection The projection matrix.
+		/// @param model_view The Model View DMatrix.
+		/// @param projection The projection DMatrix.
 		/// @param window_width Width of the window.
 		/// @param window_height Height of the window.
 		/// @return the mapped 3D position in object space.
@@ -680,18 +751,18 @@ namespace DMath {
 			return result;
 		}
 
-		// Dimensions of the matrix.
-		/// Number of rows in the matrix.
+		// Dimensions of the DMatrix.
+		/// Number of rows in the DMatrix.
 		static const int kRows = rows;
-		/// Number of columns in the matrix.
+		/// Number of columns in the DMatrix.
 		static const int kColumns = columns;
-		/// Total number of elements in the matrix.
+		/// Total number of elements in the DMatrix.
 		static const int kElements = rows * columns;
 
-		/// @brief get string of vector data seperate by space.
-		///  vector data must be basic type like :float int double
+		/// @brief get string of DVector data seperate by space.
+		///  DVector data must be basic type like :float int double
 		///
-		/// @return string of vector data.
+		/// @return string of DVector data.
 		inline std::string ToString() const {
 
 			std::string str = "mat"+std::to_string(rows)+ "X" + std::to_string(columns) + "\n";
@@ -708,10 +779,10 @@ namespace DMath {
 			return str;
 		}
 
-		/// @brief get wstring of vector data seperate by space.
-		///  vector data must be basic type like :float int double
+		/// @brief get wstring of DVector data seperate by space.
+		///  DVector data must be basic type like :float int double
 		///
-		/// @return wstring of vector data.
+		/// @return wstring of DVector data.
 		inline std::wstring ToWString() const {
 			std::wstring str = L"mat" + std::to_wstring(rows) + L"X" + std::to_wstring(columns) + L"\n";
 			for (int r = 0; r < rows; ++r)
@@ -735,31 +806,31 @@ namespace DMath {
 	};
 
 
-	/// @brief Multiply each element of a Matrix by a scalar.
+	/// @brief Multiply each element of a DMatrix by a scalar.
 	///
 	/// @param s Scalar to multiply by.
-	/// @param m Matrix to multiply.
-	/// @return Matrix containing the result.
-	/// @tparam T Type of each element in the Matrix and the scalar type.
-	/// @tparam rows Number of rows in the matrix.
-	/// @tparam columns Number of columns in the matrix.
+	/// @param m DMatrix to multiply.
+	/// @return DMatrix containing the result.
+	/// @tparam T Type of each element in the DMatrix and the scalar type.
+	/// @tparam rows Number of rows in the DMatrix.
+	/// @tparam columns Number of columns in the DMatrix.
 	///
-	/// @related mathfu::Matrix
+	/// @related mathfu::DMatrix
 	template <class T, int rows, int columns>
 	inline DMatrix<T, rows, columns> operator*(const T& s,
 		const DMatrix<T, columns, rows>& m) {
 		return m * s;
 	}
 
-	/// @brief Multiply a Matrix by a Vector.
+	/// @brief Multiply a DMatrix by a DVector.
 	///
 	/// @note Template specialized versions are implemented for 2x2, 3x3, and 4x4
 	/// matrices to increase performance.  The 3x3 float is also specialized
-	/// to supported padded the 3-dimensional Vector in SIMD build configurations.
+	/// to supported padded the 3-dimensional DVector in SIMD build configurations.
 	///
-	/// @param m Matrix to multiply.
-	/// @param v Vector to multiply.
-	/// @return Vector containing the result.
+	/// @param m DMatrix to multiply.
+	/// @param v DVector to multiply.
+	/// @return DVector containing the result.
 	///
 
 	template <class T, int rows, int columns>
@@ -812,16 +883,16 @@ namespace DMath {
 	}
 	/// @endcond
 
-	/// @brief Multiply a 4x4 Matrix by a 3-dimensional Vector.
+	/// @brief Multiply a 4x4 DMatrix by a 3-dimensional DVector.
 	///
-	/// This is provided as a convenience and assumes the vector has a fourth
+	/// This is provided as a convenience and assumes the DVector has a fourth
 	/// component equal to 1.
 	///
-	/// @param m 4x4 Matrix.
-	/// @param v 3-dimensional Vector.
-	/// @return 3-dimensional Vector result.
+	/// @param m 4x4 DMatrix.
+	/// @param v 3-dimensional DVector.
+	/// @return 3-dimensional DVector result.
 	///
-	/// @related mathfu::Matrix
+	/// @related mathfu::DMatrix
 	template <class T>
 	inline DVector<T, 3> operator*(const DMatrix<T, 4, 4>& m, const DVector<T, 3>& v) {
 		DVector<T, 4> v4(v[0], v[1], v[2], 1);
@@ -829,19 +900,19 @@ namespace DMath {
 		return DVector<T, 3>(v4[0] / v4[3], v4[1] / v4[3], v4[2] / v4[3]);
 	}
 
-	/// @brief Multiply a Matrix with another Matrix.
+	/// @brief Multiply a DMatrix with another DMatrix.
 	///
 	/// @note Template specialized versions are implemented for 2x2, 3x3, and 4x4
 	/// matrices to improve performance. 3x3 float is also specialized because if
 	/// SIMD is used the vectors of this type of length 4.
 	///
-	/// @param m1 Matrix to multiply.
-	/// @param m2 Matrix to multiply.
-	/// @param out_m Pointer to a Matrix which receives the result.
+	/// @param m1 DMatrix to multiply.
+	/// @param m2 DMatrix to multiply.
+	/// @param out_m Pointer to a DMatrix which receives the result.
 	///
-	/// @tparam T Type of each element in the returned Matrix.
-	/// @tparam size1 Number of rows in the returned Matrix and columns in m1.
-	/// @tparam size2 Number of columns in the returned Matrix and rows in m2.
+	/// @tparam T Type of each element in the returned DMatrix.
+	/// @tparam size1 Number of rows in the returned DMatrix and columns in m1.
+	/// @tparam size2 Number of columns in the returned DMatrix and rows in m2.
 	/// @tparam size3 Number of columns in m3.
 	template <class T, int size1, int size2, int size3>
 	inline void TimesHelper(const DMatrix<T, size1, size2>& m1,
@@ -932,15 +1003,15 @@ namespace DMath {
 	}
 	/// @endcond
 
-	/// @brief Compute the identity matrix.
+	/// @brief Compute the identity DMatrix.
 	///
 	/// @note There are template specializations for 2x2, 3x3, and 4x4 matrices to
 	/// increase performance.
 	///
-	/// @return Identity Matrix.
-	/// @tparam T Type of each element in the returned Matrix.
-	/// @tparam rows Number of rows in the returned Matrix.
-	/// @tparam columns Number of columns in the returned Matrix.
+	/// @return Identity DMatrix.
+	/// @tparam T Type of each element in the returned DMatrix.
+	/// @tparam rows Number of rows in the returned DMatrix.
+	/// @tparam columns Number of columns in the returned DMatrix.
 	template <class T, int rows, int columns>
 	inline DMatrix<T, rows, columns> IdentityHelper() {
 		DMatrix<T, rows, columns> return_matrix(0.f);
@@ -1021,66 +1092,14 @@ namespace DMath {
 	}
 	/// @endcond
 
-	/// Struct used for template specialization for functions that
-	/// returns constants.
-	template <class T>
-	class Constants {
-	public:
-		/// Minimum absolute value of the determinant of an invertible matrix.
-		static T GetDeterminantThreshold() {
-			// No constant defined for the general case.
-			assert(false);
-			return 0;
-		}
-	};
-	/// @endcond
-
-	/// Functions that return constants for <code>float</code> values.
-	template <>
-	class Constants<float> {
-	public:
-		/// @brief Minimum absolute value of the determinant of an invertible
-		/// <code>float</code> Matrix.
-		///
-		/// <code>float</code> values have 23 bits of precision which is roughly
-		/// 1e7f, given that the final step of matrix inversion is multiplication
-		/// with the inverse of the determinant, the minimum value of the
-		/// determinant is 1e-7f before the precision too low to accurately
-		/// calculate the inverse.
-		/// @returns Minimum absolute value of the determinant of an invertible
-		/// <code>float</code> Matrix.
-		///
-		/// @related mathfu::Matrix::InverseWithDeterminantCheck()
-		static float GetDeterminantThreshold() { return 1e-7f; }
-	};
-
-	/// Functions that return constants for <code>double</code> values.
-	template <>
-	class Constants<double> {
-	public:
-		/// @brief Minimum absolute value of the determinant of an invertible
-		/// <code>double</code> Matrix.
-		///
-		/// <code>double</code> values have 46 bits of precision which is roughly
-		/// 1e15, given that the final step of matrix inversion is multiplication
-		/// with the inverse of the determinant, the minimum value of the
-		/// determinant is 1e-15 before the precision too low to accurately
-		/// calculate the inverse.
-		/// @returns Minimum absolute value of the determinant of an invertible
-		/// <code>double</code> Matrix.
-		///
-		/// @related mathfu::Matrix::InverseWithDeterminantCheck()
-		static double GetDeterminantThreshold() { return 1e-15; }
-	};
-
-	/// @brief Compute the inverse of a matrix.
+	/// @brief Compute the inverse of a DMatrix.
 	///
 	/// There is template specialization  for 2x2, 3x3, and 4x4 matrices to
 	/// increase performance. Inverse is not implemented for dense matrices that
 	/// are not of size 2x2, 3x3, and 4x4.  If check_invertible is true the
-	/// determine of the matrix is compared with
+	/// determine of the DMatrix is compared with
 	/// Constants<T>::GetDeterminantThreshold() to roughly determine whether the
-	/// Matrix is invertible.
+	/// DMatrix is invertible.
 	template <bool check_invertible, class T, int rows, int columns>
 	inline bool InverseHelper(const DMatrix<T, rows, columns>& m,
 							 DMatrix<T, rows, columns>* const inverse) {
@@ -1113,7 +1132,7 @@ namespace DMath {
 	template <bool check_invertible, class T>
 	inline bool InverseHelper(const DMatrix<T, 3, 3>& m,
 		DMatrix<T, 3, 3>* const inverse) {
-		// Find determinant of matrix.
+		// Find determinant of DMatrix.
 		T sub11 =  m[4] * m[8] - m[5] * m[7];
 		T sub12 = -m[1] * m[8] + m[2] * m[7];
 		T sub13 =  m[1] * m[5] - m[2] * m[4];
@@ -1176,26 +1195,26 @@ namespace DMath {
 		// This will perform the pivot and find the row, column, and 3x3 submatrix
 		// for this pivot.
 		DVector<T, 3> row, column;
-		DMatrix<T, 3> matrix;
+		DMatrix<T, 3> maxtrix;
 		if (pivot_elem == 0) {
 			row    = DVector<T, 3>(m[4], m[8], m[12]);
 			column = DVector<T, 3>(m[1], m[2], m[3]);
-			matrix = DMatrix<T, 3>(m[5], m[6], m[7], m[9], m[10], m[11], m[13], m[14], m[15]);
+			maxtrix = DMatrix<T, 3>(m[5], m[6], m[7], m[9], m[10], m[11], m[13], m[14], m[15]);
 		}
 		else if (pivot_elem == 1) {
 			row    = DVector<T, 3>(m[5], m[9], m[13]);
 			column = DVector<T, 3>(m[0], m[2], m[3]);
-			matrix = DMatrix<T, 3>(m[4], m[6], m[7], m[8], m[10], m[11], m[12], m[14], m[15]);
+			maxtrix = DMatrix<T, 3>(m[4], m[6], m[7], m[8], m[10], m[11], m[12], m[14], m[15]);
 		}
 		else if (pivot_elem == 2) {
 			row    = DVector<T, 3>(m[6], m[10], m[14]);
 			column = DVector<T, 3>(m[0], m[1], m[3]);
-			matrix = DMatrix<T, 3>(m[4], m[5], m[7], m[8], m[9], m[11], m[12], m[13], m[15]);
+			maxtrix = DMatrix<T, 3>(m[4], m[5], m[7], m[8], m[9], m[11], m[12], m[13], m[15]);
 		}
 		else {
 			row    = DVector<T, 3>(m[7], m[11], m[15]);
 			column = DVector<T, 3>(m[0], m[1], m[2]);
-			matrix = DMatrix<T, 3>(m[4], m[5], m[6], m[8], m[9], m[10], m[12], m[13], m[14]);
+			maxtrix = DMatrix<T, 3>(m[4], m[5], m[6], m[8], m[9], m[10], m[12], m[13], m[14]);
 		}
 		T pivot_value = m[pivot_elem];
 		if (check_invertible &&
@@ -1205,9 +1224,9 @@ namespace DMath {
 		// This will compute the inverse using the row, column, and 3x3 submatrix.
 		T inv = -1 / pivot_value;
 		row *= inv;
-		matrix += DMatrix<T, 3>::OuterProduct(column, row);
+		maxtrix += DMatrix<T, 3>::OuterProduct(column, row);
 		DMatrix<T, 3> mat_inverse;
-		if (!InverseHelper<check_invertible>(matrix, &mat_inverse) &&
+		if (!InverseHelper<check_invertible>(maxtrix, &mat_inverse) &&
 			check_invertible) {
 			return false;
 		}
@@ -1245,7 +1264,7 @@ namespace DMath {
 		return true;
 	}
 
-	/// Create a 4x4 perpective matrix.
+	/// Create a 4x4 perpective DMatrix.
 	template <class T>
 	inline DMatrix<T, 4, 4> PerspectiveHelper(T fovy, T aspect, T znear, T zfar,T handedness) {
 		const T y = 1 / std::tan(fovy * static_cast<T>(.5));
@@ -1259,7 +1278,7 @@ namespace DMath {
 	/// @endcond
 
 	/// @cond MATHFU_INTERNAL
-	/// Create a 4x4 orthographic matrix.
+	/// Create a 4x4 orthographic DMatrix.
 	template <class T>
 	static inline DMatrix<T, 4, 4> OrthoHelper( T left, T right, T bottom, T top,
 												T znear, T zfar, T handedness) {
@@ -1273,8 +1292,8 @@ namespace DMath {
 	/// @endcond
 
 	/// @cond MATHFU_INTERNAL
-	/// Calculate the axes required to construct a 3-dimensional camera matrix that
-	/// looks at "at" from eye position "eye" with the up vector "up".  The axes
+	/// Calculate the axes required to construct a 3-dimensional camera DMatrix that
+	/// looks at "at" from eye position "eye" with the up DVector "up".  The axes
 	/// are returned in a 4 element "axes" array.
 	template <class T>
 	static void LookAtHelperCalculateAxes(const DVector<T, 3>& at,const DVector<T, 3>& eye,
@@ -1297,7 +1316,7 @@ namespace DMath {
 	/// @endcond
 
 	/// @cond MATHFU_INTERNAL
-	/// Create a 3-dimensional camera matrix.
+	/// Create a 3-dimensional camera DMatrix.
 	template <class T>
 	static inline DMatrix<T, 4, 4> LookAtHelper(const DVector<T, 3>& at,
 		const DVector<T, 3>& eye,
@@ -1329,7 +1348,7 @@ namespace DMath {
 			// 1: far plane
 			return false;
 		}
-		DMatrix<T, 4, 4> matrix = (projection * model_view).Inverse();
+		DMatrix<T, 4, 4> DMatrix = (projection * model_view).Inverse();
 		DVector<T, 4> standardized = DVector<T, 4>(
 			static_cast<T>(2) * (window_coord.x - window_width) / window_width +
 			static_cast<T>(1),
@@ -1338,7 +1357,7 @@ namespace DMath {
 			static_cast<T>(2) * window_coord.z - static_cast<T>(1),
 			static_cast<T>(1));
 
-		DVector<T, 4> multiply = matrix * standardized;
+		DVector<T, 4> multiply = DMatrix * standardized;
 		if (multiply.w == static_cast<T>(0)) {
 			return false;
 		}
