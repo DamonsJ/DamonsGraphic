@@ -54,7 +54,11 @@ int main() {
 	poly.AddPoint(2.0, 5.0);
 	poly.AddPoint(8.0, 7.0);
 	poly.AddPoint(4.0, 10.0);
+	poly.AddPoint(3.0, 7.4999);
 	bool issimple = poly.IsSimple();
+	bool iscounter = poly.IsCounterClockWise();
+	bool isconvex = poly.IsConvex();
+	int isin = poly.IsPointInPolygon(3,7.499);
  	//////////////////////////////////////////////////////////////////////////
 	/*
 	typedef DPoint<float > DPoint;

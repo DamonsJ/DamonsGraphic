@@ -71,16 +71,111 @@ namespace DGraphic {
 			unsigned int sz = GetPolygonPointSize();
 			for(unsigned int i = 0;i < sz - 1;++i){
 				if(IsSegmentIntersect(m_polygonPoints[i],m_polygonPoints[i+1],m_polygonPoints[i+1],m_polygonPoints[i+2]) > 1)
-					return true;	
+					return false;	
 			}
-			return false;
+			return true;
 		}
-		bool IsConvex() const { ; }
-		bool IsCounterClockWise() const { ; }
-		bool IsPointInPolygon() const { ; }
+		/// @brief tell whether polygon is convex
+		/// @return  true if convex otherwise false 
+		bool IsConvex() { 
+			if (!IsCounterClockWise()) {
+				ReversePolygon();
+			}
+			unsigned int sz = GetPolygonPointSize();
+			for (unsigned int i = 1; i <= sz; ++i) {
+				auto &p0 = m_polygonPoints[i - 1];
+				auto &p1 = m_polygonPoints[i ];
+				auto &p2 = ((i + 1) == m_polygonPoints.size()) ? m_polygonPoints[0] : m_polygonPoints[i + 1];
+
+				const T Ax = p1[0] - p0[0];
+				const T Ay = p1[1] - p0[1];
+				const T Bx = p2[0] - p1[0];
+				const T By = p2[1] - p1[1];
+				if (Ax*By - Bx * Ay < 0)
+					return false;
+			}
+ 			return true;
+		}
+
+		/// @brief tell whether polygon is counter clockwise
+		/// @return  true if counter clockwise otherwise false 
+		bool IsCounterClockWise()  { 
+			ClosePolygon(); 
+			double area = 0.0;
+			unsigned int sz = GetPolygonPointSize();
+			for (int i = 0; i < sz; i++)
+			{
+				auto &p0 = m_polygonPoints[i];
+				auto &p1 = m_polygonPoints[i+1];
+
+				area +=-0.5*(p1[1] + p0[1])*(p1[0] - p0[0]);
+			}
+
+			return area > 0.0;
+		}
+
+		/// @brief tell whether a point lie in polygon
+		/// @return  2 if in polygon
+        ///			 1 if on Polygon edge
+		///			 0 if out polygon
+
+		int IsPointInPolygon(const T &x,const T &y) { 
+			DVector<T, 2> p(x,y);
+			return IsPointInPolygon(p);
+		}
+		int IsPointInPolygon(const DVector<T,2> &p) {
+			ClosePolygon();
+			unsigned int sz = GetPolygonPointSize();
+			int num_intersect = 0;
+			T x = p[0];
+			T y = p[1];
+
+			for (unsigned int i = 0; i < sz; ++i) {
+				auto &p0 = m_polygonPoints[i];
+				auto &p1 = m_polygonPoints[i + 1];
+
+				if ((p0 - p).LengthSquared() < DEplision*DEplision)
+					return 1;
+
+				if (std::abs(p0[1] - y) < DEplision && std::abs(p1[1] - y) < DEplision) //点在线段的方向上
+				{
+					if (std::abs(p0[0] - x) < 0.00001)
+						return 1;
+					if (std::abs(p1[0] - x) < 0.00001)
+						return 1;
+					if ((p0[0] - x)*(p1[0] - x) < 0)
+						return 1;
+
+					continue;
+				}
+
+				if (std::min(p0[1], p1[1]) - y > -DEplision) //去掉误差 判断线段在射线之上或者在射线上方
+					continue;
+
+				if (std::abs(std::max(p0[1], p1[1]) - y) < DEplision)//线段最高点在射线上					
+				{
+					num_intersect++;
+					continue;
+				}
+
+				if (std::max(p0[1], p1[1]) < y)//线段在射线下
+					continue;
+
+				double xseg = p1[0] - (p1[0] - p0[0]) * (p1[1] - y) / (p1[1] - p0[1]); //求交
+				if (xseg < x)  //交点在射线起点的左侧
+					continue;
+
+				num_intersect++;
+			}
+
+			return num_intersect % 2 ? 2 : 0;
+		}
 	public:
-		//����εĺ�
-		//����ε������ʷ�
+		/// @brief reverse polygon
+		/// @return  void
+		void ReversePolygon() {
+			std::reverse(m_polygonPoints.begin(), m_polygonPoints.end());
+		}
 
 	protected:
 		/// @brief tell whether polygon is close
@@ -94,7 +189,7 @@ namespace DGraphic {
 		}
 		/// @brief tell whether two segment is intersect
 		/// @note https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
-		/// @return  0 if dosenot intersect
+		/// @return  0 if not intersect
 		///			 1 intersect at endpoint
 		///			 2 overlap
 		///			 1 intersect at a point which is not endpoint
