@@ -14,10 +14,12 @@ namespace DGraphic {
 	/// functions to perform operations on the set of elements.
 	///
 	/// @tparam T type of Point elements.
-
 	template< class T = double>
-	class DPoint: public DObject ,public DVector<T,3>
+	class DPoint: public DVector<T,3>,public DObject 
 	{
+		//add this for gcc compiler 
+		//vs compiler not need this statement
+		using DVector<T,3>::data_;
 	public:
 		/// @brief Create an uninitialized Point.
 		inline DPoint():DVector<T,3>(){}
