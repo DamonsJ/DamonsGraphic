@@ -45,6 +45,42 @@ namespace DGraphic {
 		/// @return void
 		void AddPoint(const DVector<T, 2> &_point) { m_polygonPoints.push_back(_point); }
 		void AddPoint(const T &x, const T &y) { PolygonPoint _pp(x, y); m_polygonPoints.push_back(_pp); }
+        /// @brief read a polygon from string
+        /// @note string contains coordinate x and y split by comma","
+        /// @return void
+        void ReadFromString(std::string polystr){
+            m_polygonPoints.clear();
+            std::vector<double > values;
+            std::size_t beg = 0;
+            std::size_t end = 0;
+            while((end = polystr.find(",")) != std::string::npos){
+                std::string cv = polystr.substr(beg,end-beg);
+                polystr = polystr.substr(end+1);
+                double d = std::stod(cv);
+                values.push_back(d);
+            }
+            double d = std::stod(polystr);
+            values.push_back(d);
+            for(int i = 0 ;i<values.size();i=i+2){
+                double x = values[i];
+                double y = values[i+1];
+                DVector<T, 2> p;
+                p[0] = x;
+                p[1] = y;
+                m_polygonPoints.push_back(p);
+            }
+            std::vector<double >().swap(values);
+        }
+        /// @brief  get all polygon points string
+        /// @return string
+        std::string PrintPolygonPoints(){
+            std::string pstr;
+            int i = 1;
+            for (auto &p : m_polygonPoints) {
+                pstr = pstr + std::to_string(i++) +"  "+ p.ToString();
+            }
+            return pstr;
+        }
 	public:
 		/// @brief get point size of polygon
 		/// @note only count point size,if first point same with last point
@@ -70,12 +106,14 @@ namespace DGraphic {
 			ClosePolygon();
 			unsigned int sz = GetPolygonPointSize();
 			for(unsigned int i = 0;i < sz - 1;++i){
-				if(IsSegmentIntersect(m_polygonPoints[i],m_polygonPoints[i+1],m_polygonPoints[i+1],m_polygonPoints[i+2]) > 1)
-					return false;	
+                for(unsigned int j = i+1;j < sz ;++j){	if(IsSegmentIntersect(m_polygonPoints[i],m_polygonPoints[i+1],m_polygonPoints[j],m_polygonPoints[j+1]) > 1)
+					return false;
+                }
 			}
 			return true;
 		}
 		/// @brief tell whether polygon is convex
+        /// @note perform this function makes polygon counterclockwise
 		/// @return  true if convex otherwise false 
 		bool IsConvex() { 
 			if (!IsCounterClockWise()) {
@@ -98,6 +136,7 @@ namespace DGraphic {
 		}
 
 		/// @brief tell whether polygon is counter clockwise
+        /// @note use green formula
 		/// @return  true if counter clockwise otherwise false 
 		bool IsCounterClockWise()  { 
 			ClosePolygon(); 
@@ -192,7 +231,7 @@ namespace DGraphic {
 		/// @return  0 if not intersect
 		///			 1 intersect at endpoint
 		///			 2 overlap
-		///			 1 intersect at a point which is not endpoint
+		///			 3 intersect at a point which is not endpoint
 		int IsSegmentIntersect(DVector<T, 2> &V0,DVector<T, 2> &V1,DVector<T, 2> &U0,DVector<T, 2> &U1) {
 				 							
 				const T Ax = V1[0] - V0[0];
@@ -229,9 +268,21 @@ namespace DGraphic {
 					return 0;
 				//If 0 ≤ t ≤ 1 and 0 ≤ u ≤ 1, the two line segments meet at the point p + t r = q + u s
 				else if (std::abs(f) > DEplision) {
-					// 0 < t < 1 and 0 < u < 1
-					if ((f > 0.0 && d > 0.0 && d < f) || (f < 0.0 && d < 0.0 && d > f))
-						return 3;
+                    T u = d/f;
+                    T v = e/f;
+                    
+                    if( std::abs(u) < DEplision || std::abs(v) < DEplision ||std::abs(u-1.0) < DEplision||std::abs(v-1.0) < DEplision)
+                        return 1;
+                    else if (u < 1.0+DEplision && u > 0.0-DEplision && v>0.0-DEplision && v<1.0+DEplision)
+                        return 3;
+                    else
+                        return 0;
+					/*// 0 < t < 1 and 0 < u < 1
+                    if ((f > 0.0 && d > 0.0 && d < f) || (f < 0.0 && d < 0.0 && d > f)){
+                        if(( e > 0.0 && e < f) ||(e < 0.0 && e>f))
+                            return 3;
+                        return 0;
+                    }
 					// t==0 && (u ==0||u==1)
 					else if (std::abs(d) < DEplision && (std::abs(e) < DEplision || std::abs(e - f) < DEplision))
 						return 1;
@@ -246,7 +297,7 @@ namespace DGraphic {
 						return 1;
 					//end point intersect with another point which is not end point
 					else
-						return 3;
+						return 3;*/
 				}
 				else//Otherwise, the two line segments are not parallel but do not intersect
 					return 0;

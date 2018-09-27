@@ -10,8 +10,13 @@ using namespace DMath;
 using namespace DGraphic;
 
 int main() {
-
-	////DVector<float, 3> v1(1.0f,2.0f,3.0f);
+    std::string ptstring = "348,695,653,568,480,254,436,490,291,254,296,468,117,336,259,603,137,681,283,653,348,695";
+    DPolygon<double > m_poly;
+    m_poly.ReadFromString(ptstring);
+    bool issimple = m_poly.IsSimple();
+    bool iscc = m_poly.IsCounterClockWise();
+    bool isconvex = m_poly.IsConvex();
+	/*DVector<float, 3> v1(1.0f,2.0f,3.0f);
 	//DVector<float, 3> v2(11.0f, 12.0f, 13.0f);
 	//DVector<float, 3> v = DVector<float,3>::RandomInRange(v1,v2);
 	//DVector<float, 3> v3 = DMath::RoundUpToPowerOf2(v1);
@@ -58,7 +63,7 @@ int main() {
 	bool issimple = poly.IsSimple();
 	bool iscounter = poly.IsCounterClockWise();
 	bool isconvex = poly.IsConvex();
-	int isin = poly.IsPointInPolygon(3,7.499);
+	int isin = poly.IsPointInPolygon(3,7.499);*/
  	//////////////////////////////////////////////////////////////////////////
 	/*
 	typedef DPoint<float > DPoint;
